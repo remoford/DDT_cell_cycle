@@ -39,12 +39,13 @@ data=G2Time_b;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %choose model to fit
-twostagefit=1;
+twostagefit=0;
 onestagelag=0;
-onestagefit=2;
+onestagefit=0;
 threestagefit=0;
 emgfit=0;
 twostagelag=0;
+twostagefitnoreset=1;
 
 %get sample statistics for fitting initializing the model parameters
 num = length(data);
@@ -287,6 +288,95 @@ if twostagefit == 1
     % END FUNCTION FIT_TWOSTAGE
 end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+%Fit two-stage model with imperfect reset
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+if twostagefitnoreset == 1
+    % BEGIN FUNCTION FIT_TWOSTAGE_NORESET
+    
+        % prepare statistical parameters
+        vry = [.25 .5 .75]';
+        % vrys=[.01 1 10]';
+        % [x0, l_moments, min_res] = moments_method_2stage(data);
+        % m1 = x0(1)*vry; 
+        % s1 = x0(2)*vrys;
+        % m2 = x0(3)*vry;
+        % s2 = x0(4)*vrys;
+        c1 = C1*vry;
+        c2 = C2*vry;
+        m = 1./c1;
+        s = (c2./c1.^3).^0.5;
+        N = length(vry);
+
+        % prepare parameter seeds
+        
+        %get all pairs of the form [m(i),s(j)]
+        %these pairs represent all possible unique 
+        %parameter choices for each part of the cell
+        %cycle.  
+        pcomb = allcomb(m,s);
+        %place paramter pairs into a cell.  The parameters choices for each part
+        %are now indexed
+        pcell = cell(length(pcomb),1);
+        for i = 1:length(pcomb)
+            pcell{i} = pcomb(i,:);
+        end
+        %get all pairs of indices for the parameter 
+        %choices for each part of the cycle to get all 
+        %parameter choices for the entire cycle
+        id = allcomb(1:length(pcomb),1:length(pcomb));
+        %sort the pairs in ascending order.  
+        %This equates choices of the form [i,j] and [j,i].
+        id = sort(id,2);
+        %remove repeats
+        id = unique(id,'rows');
+        %create a matrix of unique parameter choices for the cell cycle
+        P = zeros(length(id),5);
+        
+                
+        % STUB CODE STUB CODE
+        % this needs to be fixed so that there are a variety of starting
+        % points for the r parameter. As is, this hard codes a starting
+        % point of 0.5 which is not what we really want!
+        for ii = 1:length(id)
+            P(ii,:) = [pcell{id(ii,1)},pcell{id(ii,2)},0.5];
+        end
+
+        % optimize parameters
+        pd=zeros(length(P),5);
+        ld = NaN*ones(length(P),1);
+        options = statset('MaxIter',10000, 'MaxFunEvals',10000,'TolFun',1e-3,'TolX',1e-3,'TolTypeFun','rel', 'TolTypeX', 'abs');
+        flag=zeros(length(id),1);
+        for i=1:length(id)  
+            x0 = P(i,:)
+            %x0 = [x0, 0.5]
+            f=@(x,m1,s1,m2,s2,r)convolv_2invG_noreset(x,m1,s1,m2,s2,r,.01);
+            [p,conf1]=mle(data,'pdf',f,'start',x0, 'upperbound', [Inf Inf Inf Inf 1],'lowerbound',[0 0 0 0 0],'options',options)
+            pd(i,:)=p;
+            confint(:,:,i)=conf1(:);
+            [l,hp(i),flag(i),E(i)]=convolv_2invG_noreset(data,p(1),p(2),p(3),p(4),p(5),.01);
+            l=sum(log(l));
+            ld(i)=l    
+
+        end
+        
+        % we previously optimized with a larger step size, recalculate with
+        % a smaller stepsize after the fact
+        ld_true=zeros(length(ld),1);
+        for i=1:length(ld)
+            [l,hp_true(i),flag_true(i),E_true(i)]=convolv_2invG_noreset(data,pd(i,1),pd(i,2),pd(i,3),pd(i,4),pd(i,5),.001);
+            ld_true(i)=sum(log(l));
+        end
+
+        % common to each fit, consider factoring out
+        [max_ld,row_ld]=max(ld_true);
+        pd_max = pd(row_ld,:);
+        confint_max=confint(:,:,row_ld);
+    % END FUNCTION FIT_TWOSTAGE_NORESET
+end
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 
 %Fit two-stage model with lag
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
