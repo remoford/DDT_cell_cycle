@@ -51,7 +51,14 @@ m=m(I);
 s=s(I);
 
 [P2,h,flag,E]=convolv_2invG_adapt_nov(t,m1,s1,m2,s2,h);
+
+if flag~=1
 P1=onestagepdf2(t,m(1),s(1));
+end
+
+if flag==1
+P1=sum((1/m(1)-.1<=t).*(1/m(1)+.1>=t));
+end
 
 P=r*P1+(1-r)*P2;
 
