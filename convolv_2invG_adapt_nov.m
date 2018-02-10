@@ -13,6 +13,11 @@
 % s2=sigma2.
 
 function [P,h,flag,E]=convolv_2invG_adapt_nov(t,m1,s1,m2,s2,h)
+
+tic
+
+
+fprintf("start 2invG: m1=%f s1=%f m2=%f s2=%f \n",m2,s1,m2,s2);
 % Input parameters:
 % t = the list of points at which to evaluate the distribution
 % m1 = mu for the first distribution
@@ -195,6 +200,7 @@ else
             %Keep reducing the step size in the numerical integration until we are happy with the error.
                 while E>=.001*abs(logP0)
                     h1=.5*h;
+                    fprintf("h1=%f ",h1);
                     x=0:h1:Maxt;
                     y=onestagepdf2(x,m(1),s(1));
                     z=onestagepdf2(x,m(2),s(2));
@@ -232,6 +238,7 @@ else
                     P0=P1;
                     logP0=logP1;
                     h=h1;
+                    toc
                 end
                 P=P0;
             % END FUNCTION DOTHECONVOLUTION_OUTER
@@ -272,6 +279,7 @@ else
 
             while E>=.001*abs(logP0)
                 h1=.5*h;
+                fprintf("h1=%f ",h1);
                 x=0:h1:Maxt;
                 y=onestagepdf2(x,m(1),s(1));
                 z=onestagepdf2(x,m(2),s(2));
@@ -309,9 +317,13 @@ else
                 P0=P1;
                 logP0=logP1;
                 h=h1;
+                toc
             end
             P=P0;
         % BEGIN FUNCTION DOTHECONVOLUTION_OUTER
     end
 end
+fprintf("m1=%f s1=%f m2=%f s2=%f h=%f  ",m2,s1,m2,s2,h);
+toc
+fprintf("\n\n");
 end
