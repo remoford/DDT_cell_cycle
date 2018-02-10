@@ -1,7 +1,6 @@
 function imt()
 % This file fits EMG, one-, two-, and three-stage stochasttic models to IMT data.
 
-clear all
 
 %This section of code gets the IMT data
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -15,8 +14,8 @@ clear all
 %data=imt_b;
 
 %for MCF
-%load('MCF_imts_April2017.mat')
-%data=imt_b;
+load('MCF_imts_April2017.mat')
+data=imt_b;
 
 %for DMSO 
 %load('DMSO_imts_April2017.mat')
@@ -28,9 +27,9 @@ clear all
 
 %for FUCCI data
 %GetProcessedDataParts
-load('FUCCI_April2017.mat')
+%load('FUCCI_April2017.mat')
 %data=imt_b;
-data=G2Time_b;
+%data=G2Time_b;
 %data=G1Time_b;
 
 %for PC9 cells
@@ -297,12 +296,6 @@ if twostagefitnoreset == 1
     
         % prepare statistical parameters
         vry = [.25 .5 .75]';
-        % vrys=[.01 1 10]';
-        % [x0, l_moments, min_res] = moments_method_2stage(data);
-        % m1 = x0(1)*vry; 
-        % s1 = x0(2)*vrys;
-        % m2 = x0(3)*vry;
-        % s2 = x0(4)*vrys;
         c1 = C1*vry;
         c2 = C2*vry;
         m = 1./c1;
