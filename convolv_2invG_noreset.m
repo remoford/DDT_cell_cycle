@@ -52,16 +52,7 @@ s=s(I);
 
 [P2,h,flag,E]=convolv_2invG_adapt_nov(t,m1,s1,m2,s2,h);
 
-%if the Dirac delta model is not chosen, use the inverse Gaussian for the
-%probability of data, given noreset.
-if flag~=1
 P1=onestagepdf2(t,m(1),s(1));
-end
-%if the Dirac delta model is chosen, use it to compute the probability of 
-% the data given no reset. 
-if flag==1
-P1=sum((1/m(1)-.1<=t).*(1/m(1)+.1>=t))/.2;
-end
 
 P=r*P1+(1-r)*P2;
 
