@@ -43,9 +43,6 @@ s=max(s,0);
 % find the variance for both sub-distributions
 v=(s.^2)./(m.^3);
 
-% find the standard deviation for each sub-distribution
-sd=v.^.5;
-
 % reorder m and s so that the sub-distribution with the smallest
 % variance comes first.  So the fist part might be approximated as a Dirac delta.
 [v,I]=sort(v);
