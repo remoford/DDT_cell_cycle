@@ -17,7 +17,7 @@ function [P,h,flag,E]=convolv_2invG_adapt_nov(t,m1,s1,m2,s2,h)
 tic
 
 
-fprintf("start 2invG: m1=%f s1=%f m2=%f s2=%f \n",m2,s1,m2,s2);
+fprintf('start 2invG: m1=%f s1=%f m2=%f s2=%f \n',m2,s1,m2,s2);
 % Input parameters:
 % t = the list of points at which to evaluate the distribution
 % m1 = mu for the first distribution
@@ -60,12 +60,13 @@ s=max(s,0);
 % find the variance for both sub-distributions
 v=(s.^2)./(m.^3);
 
-% find the standard deviation for each sub-distribution
-sd=v.^.5;
+
 
 % reorder m and s so that the sub-distribution with the smallest
 % variance comes first.  So the fist part might be approximated as a Dirac delta.
 [v,I]=sort(v);
+% find the standard deviation for each sub-distribution
+sd=v.^.5;
 m=m(I);
 s=s(I);
 
@@ -200,7 +201,7 @@ else
             %Keep reducing the step size in the numerical integration until we are happy with the error.
                 while E>=.001*abs(logP0)
                     h1=.5*h;
-                    fprintf("h1=%f ",h1);
+                    fprintf('h1=%f ',h1);
                     x=0:h1:Maxt;
                     y=onestagepdf2(x,m(1),s(1));
                     z=onestagepdf2(x,m(2),s(2));
@@ -279,7 +280,7 @@ else
 
             while E>=.001*abs(logP0)
                 h1=.5*h;
-                fprintf("h1=%f ",h1);
+                fprintf('h1=%f ',h1);
                 x=0:h1:Maxt;
                 y=onestagepdf2(x,m(1),s(1));
                 z=onestagepdf2(x,m(2),s(2));
@@ -323,7 +324,7 @@ else
         % BEGIN FUNCTION DOTHECONVOLUTION_OUTER
     end
 end
-fprintf("m1=%f s1=%f m2=%f s2=%f h=%f  ",m2,s1,m2,s2,h);
+fprintf('m1=%f s1=%f m2=%f s2=%f h=%f  ',m2,s1,m2,s2,h);
 toc
-fprintf("\n\n");
+fprintf('\n\n');
 end
