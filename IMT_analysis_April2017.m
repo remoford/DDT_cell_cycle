@@ -342,17 +342,24 @@ if twostagefitnoreset == 1
         ld = NaN*ones(length(P),1);
         options = statset('MaxIter',10000, 'MaxFunEvals',10000,'TolFun',1e-3,'TolX',1e-3,'TolTypeFun','rel', 'TolTypeX', 'abs');
         flag=zeros(length(id),1);
-        for i=1:length(id)  
-            x0 = P(i,:)
-            %x0 = [x0, 0.5]
+        for i=1:length(id)
+            startOptimization=tic;
+            x0 = P(i,:);
+            fprintf("optimizing seed %d: m1=%f s1=%f m2=%f s2=%f r=%f\n", i, x0(1),x0(2),x0(3),x0(4),x0(5));
             f=@(x,m1,s1,m2,s2,r)convolv_2invG_noreset(x,m1,s1,m2,s2,r,.01);
-            [p,conf1]=mle(data,'pdf',f,'start',x0, 'upperbound', [Inf Inf Inf Inf 1],'lowerbound',[0 0 0 0 0],'options',options)
+            [p,conf1]=mle(data,'pdf',f,'start',x0, 'upperbound', [Inf Inf Inf Inf 1],'lowerbound',[0 0 0 0 0],'options',options);
+            fprintf("optimized: m1=%f s1=%f m2=%f s2=%f r=%f\n", p(1),p(2),p(3),p(4),p(5));
             pd(i,:)=p;
             confint(:,:,i)=conf1(:);
             [l,hp(i),flag(i),E(i)]=convolv_2invG_noreset(data,p(1),p(2),p(3),p(4),p(5),.01);
             l=sum(log(l));
-            ld(i)=l    
-
+            fprintf("log-liklihood=%f\n",l);
+            if flag(i) == 1
+                fprintf("used dirac delta approximation in final result\n");
+            end
+            ld(i)=l;
+            toc(startOptimization)
+            fprintf("\n");
         end
         
         % we previously optimized with a larger step size, recalculate with
@@ -364,9 +371,9 @@ if twostagefitnoreset == 1
         end
 
         % common to each fit, consider factoring out
-        [max_ld,row_ld]=max(ld_true);
-        pd_max = pd(row_ld,:);
-        confint_max=confint(:,:,row_ld);
+        [max_ld,row_ld]=max(ld_true)
+        pd_max = pd(row_ld,:)
+        confint_max=confint(:,:,row_ld)
     % END FUNCTION FIT_TWOSTAGE_NORESET
 end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -510,6 +517,9 @@ if threestagefit == 1
         confint_max=confint(:,:,row_ld);
     % END FUNCTION FIT_THREESTAGE
 end
+
+
+
 
 fprintf("Total runtime:\n")
 toc(startIMT_analysis)
