@@ -1,7 +1,7 @@
 function imt()
 % This file fits EMG, one-, two-, and three-stage stochasttic models to IMT data.
 
-tic
+startIMT_analysis=tic;
 
 %This section of code gets the IMT data
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -39,13 +39,13 @@ data=imt_b;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %choose model to fit
-twostagefit=1;
+twostagefit=0;
 onestagelag=0;
 onestagefit=0;
 threestagefit=0;
 emgfit=0;
 twostagelag=0;
-twostagefitnoreset=0;
+twostagefitnoreset=1;
 
 %get sample statistics for fitting initializing the model parameters
 num = length(data);
@@ -511,6 +511,7 @@ if threestagefit == 1
     % END FUNCTION FIT_THREESTAGE
 end
 
-toc
+fprintf("Total runtime:\n")
+toc(startIMT_analysis)
 
 end

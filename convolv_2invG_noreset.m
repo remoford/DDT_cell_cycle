@@ -22,10 +22,12 @@ function [P,h,flag,E]=convolv_2invG_noreset(t,m1,s1,m2,s2,r,h)
 % E = is the relative error in the likelihood of the data due to the numerical integration
 
 % log the parameters we were called with
-%fprintf(1,'convolv_2invG(m1=%.17g, s1=%.17g, m2=%.17g, s2=%.17g)\n', ... 
-%    m1, s1, m2, s2);
+%fprintf('start noreset: m1=%f s1=%f m2=%f s2=%f r=%f\n',m2,s1,m2,s2,r);
 
-
+if r < 0
+    fprintf("WARNING: r < 0, taking absolute value!!!\n");
+    r = -r;
+end
 % number of points to be evaluated
 n=length(t);
 
@@ -52,6 +54,9 @@ s=s(I);
 
 [P2,h,flag,E]=convolv_2invG_adapt_nov(t,m1,s1,m2,s2,h);
 
+if flag == 1
+    fprintf("WARNING: Applied dirac delta approximiation, r inconsequential!\n");
+end
 P1=onestagepdf2(t,m(1),s(1));
 
 P=r*P1+(1-r)*P2;
