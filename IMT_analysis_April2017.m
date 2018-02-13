@@ -1,4 +1,4 @@
-function imt()
+
 % This file fits EMG, one-, two-, and three-stage stochasttic models to IMT data.
 
 startIMT_analysis=tic;
@@ -524,4 +524,4 @@ end
 fprintf("Total runtime:\n")
 toc(startIMT_analysis)
 
-end
+
