@@ -49,7 +49,7 @@ v=(s.^2)./(m.^3);
 m=m(I);
 s=s(I);
 
-[P2,h,flag,E]=convolv_2invG_adapt_nov(t,m1,s1,m2,s2,h);
+[P2,h,flag,E]=convolv_2invG_adapt_nov(t,m(1),s(1),m(2),s(2),h);
 
 %if flag == 1
 %    fprintf("WARNING: Applied dirac delta approximiation, r inconsequential!\n");
