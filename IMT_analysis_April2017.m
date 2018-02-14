@@ -11,12 +11,12 @@ startIMT_analysis=tic;
 %data=imt_b;
 
 %for AT1 
-%load('AT1_imts_April2017.mat')
-%data=imt_b;
+load('AT1_imts_April2017.mat')
+data=imt_b;
 
 %for MCF
-load('MCF_imts_April2017.mat')
-data=imt_b;
+%load('MCF_imts_April2017.mat')
+%data=imt_b;
 
 %for DMSO 
 %load('DMSO_imts_April2017.mat')
@@ -296,7 +296,8 @@ if twostagefitnoreset == 1
     % BEGIN FUNCTION FIT_TWOSTAGE_NORESET
     
         % prepare statistical parameters
-        vry = [.25 .5 .75]';
+        vry = [.1 .5 .9]';
+        r = [.01 .5 .99]';
         c1 = C1*vry;
         c2 = C2*vry;
         m = 1./c1;
@@ -310,7 +311,7 @@ if twostagefitnoreset == 1
         %parameter choices for each part of the cell
         %cycle.  
         pcomb = allcomb(m,s);
-        %place paramter pairs into a cell.  The parameters choices for each part
+        %place paramter triples into a cell.  The parameter choices for each part
         %are now indexed
         pcell = cell(length(pcomb),1);
         for i = 1:length(pcomb)
@@ -326,7 +327,7 @@ if twostagefitnoreset == 1
         %remove repeats
         id = unique(id,'rows');
         %create a matrix of unique parameter choices for the cell cycle
-        P = zeros(length(id),5);
+        P = zeros(length(id)*length(r),5);
         
                 
         % STUB CODE STUB CODE
@@ -334,7 +335,9 @@ if twostagefitnoreset == 1
         % points for the r parameter. As is, this hard codes a starting
         % point of 0.5 which is not what we really want!
         for ii = 1:length(id)
-            P(ii,:) = [pcell{id(ii,1)},pcell{id(ii,2)},0.5];
+            for jj=1:length(r)
+            P(length(r)*(ii-1)+jj,:) = [pcell{id(ii,1)},pcell{id(ii,2)},r(jj)];
+            end
         end
 
         % optimize parameters
