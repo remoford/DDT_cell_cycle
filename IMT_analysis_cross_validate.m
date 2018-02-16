@@ -27,16 +27,16 @@ startIMT_analysis=tic;
 %data=imt_b;
 
 %for AT1 
-load('AT1_imts_April2017.mat')
-data=imt_b;
+%load('AT1_imts_April2017.mat')
+%data=imt_b;
 
 %for MCF
 %load('MCF_imts_April2017.mat')
 %data=imt_b;
 
 %for DMSO 
-%load('DMSO_imts_April2017.mat')
-%data=imt_b;
+load('DMSO_imts_April2017.mat')
+data=imt_b;
 
 %for CHX
 %load('CHX_imts_April2017.mat')
@@ -303,7 +303,7 @@ flag_true_noreset=flag_noreset;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
-
+[AICc rel]=akaikec([lcross lcross_noreset],length(datacross),[4 5])
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
