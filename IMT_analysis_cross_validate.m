@@ -35,8 +35,15 @@ startIMT_analysis=tic;
 %data=imt_b;
 
 %for DMSO 
-load('DMSO_imts_April2017.mat')
-data=imt_b;
+%load('DMSO_imts_April2017.mat')
+%data=imt_b;
+
+
+data=[];
+for i=1:10
+    data = [data, random('InverseGaussian',0.3,0.8)];
+end
+data = data';
 
 %for CHX
 %load('CHX_imts_April2017.mat')
