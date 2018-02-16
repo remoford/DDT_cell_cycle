@@ -54,7 +54,7 @@ s=s(I);
 %if flag == 1
 %    fprintf("WARNING: Applied dirac delta approximiation, r inconsequential!\n");
 %end
-P1=onestagepdf2(t,m(1),s(1));
+P1=onestagepdf2(t,m(1),s(1))';
 
 P=r*P1+(1-r)*P2;
 
