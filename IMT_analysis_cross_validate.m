@@ -323,6 +323,17 @@ flag_true_noreset=flag_noreset;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
+[counts,centers] = hist(datacross,20);
+tot=sum(counts);
+wdth=centers(2)-centers(1);
+hght=counts/(tot*wdth);
+bar(centers,hght)
+hold on
+tt=min(data):.01:max(data);
+plot(tt,convolv_2invG_adapt_nov(tt,pd_max(1),pd_max(2),pd_max(3),pd_max(4),.01),'b');
+plot(tt,convolv_2invG_noreset(tt,pd_max_noreset(1),pd_max_noreset(2),pd_max_noreset(3),pd_max_noreset(4),pd_max_noreset(5),.01),'r');
+
+
 fprintf("Total runtime:\n")
 toc(startIMT_analysis)
 
