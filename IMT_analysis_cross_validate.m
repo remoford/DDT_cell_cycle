@@ -56,9 +56,12 @@ data=imt_b;
 %validating
 
 dataperm=randperm(length(data));
+%size of training data set
 trainsize=3*floor(length(data)/4);
-datatrain=data(1:trainsize);
-datacross=data(trainsize+1:length(dataperm));
+%take the first 3/4 of the permuted data for training
+datatrain=data(tperm(1:trainsize));
+%keep the remaining data for cross validation
+datacross=data(tperm(trainsize+1:length(dataperm)));
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -78,8 +81,10 @@ C3 = sum((datatrain-C1).^3)/(length(datatrain));
         % prepare statistical parameters
         vry = [.1 .5 .9]';
         r = [.01 .5 .99]';
+        %c1 and c2 give the possible initial guess means and variances
         c1 = C1*vry;
         c2 = C2*vry;
+        %m and s give the possible initial guess parameter values
         m = 1./c1;
         s = (c2./c1.^3).^0.5;
         N = length(vry);
@@ -120,19 +125,25 @@ C3 = sum((datatrain-C1).^3)/(length(datatrain));
             end
         end
 
-        % optimize parameters
+        % optimal parameters for each initial guess
         pd_noreset=zeros(length(P),5);
+        %likelihoods for each initial guess
         ld_noreset = NaN*ones(length(P),1);
         options = statset('MaxIter',10000, 'MaxFunEvals',10000,'TolFun',1e-3,'TolX',1e-3,'TolTypeFun','rel', 'TolTypeX', 'abs');
+        %flag is one if a part is approximated as a Dirac delta, so there
+        %is no varaibility in time spent in that part.
         flag_noreset=zeros(length(id),1);
         for i=1:(length(id)*length(r))
             startOptimization=tic;
+            %sets initial guess
             x0 = P(i,:);
             fprintf("optimizing seed %d: m1=%f s1=%f m2=%f s2=%f r=%f\n", i, x0(1),x0(2),x0(3),x0(4),x0(5));
             f=@(x,m1,s1,m2,s2,r)convolv_2invG_noreset(x,m1,s1,m2,s2,r,.01);
             [p]=mle(datatrain,'pdf',f,'start',x0, 'upperbound', [Inf Inf Inf Inf 1],'lowerbound',[0 0 0 0 0],'options',options);
             fprintf("optimized: m1=%f s1=%f m2=%f s2=%f r=%f\n", p(1),p(2),p(3),p(4),p(5));
+            %save parameters
             pd_noreset(i,:)=p;
+            %gets the likelihhod of the parameters
             [l,hp(i),flag_noreset(i),E(i)]=convolv_2invG_noreset(datatrain,p(1),p(2),p(3),p(4),p(5),.01);
             l=sum(log(l));
             fprintf("log-liklihood=%f\n",l);
@@ -159,9 +170,12 @@ flag_true_noreset=flag_noreset;
 
        %find the best flagged model and the best model that is not flagged
        
+       %indices of flagged models
        indflag_noreset=find(flag_true_noreset==1);
+       %ibndices of no flag models
        indnoflag_noreset=find(flag_true_noreset==0);
       
+       
        ld_trueflag_noreset=ld_true_noreset(indflag_noreset);
        ld_true_noreset=ld_true_noreset(indnoflag_noreset);
        
@@ -169,6 +183,7 @@ flag_true_noreset=flag_noreset;
        pd_noreset=pd_noreset(indnoflag_noreset,:);
 
         % common to each fit, consider factoring out
+        
         [max_ld_noreset,row_ld_noreset]=max(ld_true_noreset)
         %best nonflagged model
         pd_max_noreset = pd_noreset(row_ld_noreset,:)
@@ -302,7 +317,7 @@ flag_true_noreset=flag_noreset;
     % END FUNCTION FIT_TWOSTAGE
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-
+%rel is the relative probability of a model compared to another
 [AICc rel]=akaikec([lcross lcross_noreset],length(datacross),[4 5])
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
