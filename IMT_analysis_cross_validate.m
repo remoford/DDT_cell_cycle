@@ -23,41 +23,41 @@ startIMT_analysis=tic;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %for erlotinib
-%load('erlot_imts_April2017.mat')
+%load('experimental_data/erlot_imts_April2017.mat')
 %data=imt_b;
 
 %for AT1 
-%load('AT1_imts_April2017.mat')
-%data=imt_b;
+load('experimental_data/AT1_imts_April2017.mat')
+data=imt_b;
 
 %for MCF
-%load('MCF_imts_April2017.mat')
+%load('experimental_data/MCF_imts_April2017.mat')
 %data=imt_b;
 
 %for DMSO 
-%load('DMSO_imts_April2017.mat')
+%load('experimental_data/DMSO_imts_April2017.mat')
 %data=imt_b;
 
 
-data=[];
-for i=1:10
-    data = [data, random('InverseGaussian',0.3,0.8)];
-end
-data = data';
+% data=[];
+% for i=1:10
+%     data = [data, random('InverseGaussian',0.3,0.8)];
+% end
+% data = data';
 
 %for CHX
-%load('CHX_imts_April2017.mat')
+%load('experimental_data/CHX_imts_April2017.mat')
 %data=imt_b;
 
 %for FUCCI data
 %GetProcessedDataParts
-%load('FUCCI_April2017.mat')
+%load('experimental_data/FUCCI_April2017.mat')
 %data=imt_b;
 %data=G2Time_b;
 %data=G1Time_b;
 
 %for PC9 cells
-%load('PC9_April2017.mat')
+%load('experimental_data/PC9_April2017.mat')
 
 %select data for the purpose of training and data for the purpose of cross
 %validating

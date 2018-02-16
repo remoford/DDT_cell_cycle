@@ -7,45 +7,45 @@ startIMT_analysis=tic;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %for erlotinib
-%load('erlot_imts_April2017.mat')
+%load('experimental_data/erlot_imts_April2017.mat')
 %data=imt_b;
 
 %for AT1 
-load('AT1_imts_April2017.mat')
+load('experimental_data/AT1_imts_April2017.mat')
 data=imt_b;
 
 %for MCF
-%load('MCF_imts_April2017.mat')
+%load('experimental_data/MCF_imts_April2017.mat')
 %data=imt_b;
 
 %for DMSO 
-%load('DMSO_imts_April2017.mat')
+%load('experimental_data/DMSO_imts_April2017.mat')
 %data=imt_b;
 
 %for CHX
-%load('CHX_imts_April2017.mat')
+%load('experimental_data/CHX_imts_April2017.mat')
 %data=imt_b;
 
 %for FUCCI data
 %GetProcessedDataParts
-%load('FUCCI_April2017.mat')
+%load('experimental_data/FUCCI_April2017.mat')
 %data=imt_b;
 %data=G2Time_b;
 %data=G1Time_b;
 
 %for PC9 cells
-%load('PC9_April2017.mat')
+%load('experimental_data/PC9_April2017.mat')
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %choose model to fit
-twostagefit=0;
+twostagefit=1;
 onestagelag=0;
 onestagefit=0;
 threestagefit=0;
 emgfit=0;
 twostagelag=0;
-twostagefitnoreset=1;
+twostagefitnoreset=0;
 
 %get sample statistics for fitting initializing the model parameters
 num = length(data);

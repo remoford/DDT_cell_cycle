@@ -59,4 +59,5 @@ P1=onestagepdf2(t,m(1),s(1))';
 P=r*P1+(1-r)*P2';
 P=P';
 
+
 end
