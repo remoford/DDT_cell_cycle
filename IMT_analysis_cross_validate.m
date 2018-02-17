@@ -354,6 +354,10 @@ tt=min(data):.01:max(data);
 plot(tt,convolv_2invG_adapt_nov(tt,pd_max(1),pd_max(2),pd_max(3),pd_max(4),.01),'b');
 plot(tt,convolv_2invG_noreset(tt,pd_max_noreset(1),pd_max_noreset(2),pd_max_noreset(3),pd_max_noreset(4),pd_max_noreset(5),.01),'r');
 
+title('IMT with simple and no reset model')
+xlabel('Intermitotic Times (IMT)')
+ylabel('Probability density function (pdf)')
+legend('cells', 'simple model','no reset model')
 
 fprintf("Total runtime:\n")
 toc(startIMT_analysis)
