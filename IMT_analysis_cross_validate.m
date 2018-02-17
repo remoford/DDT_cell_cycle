@@ -1,3 +1,5 @@
+function []=IMT_analysis_cross_validate(dataset)
+
 % This file fits two-stage with and without perfect reset models to IMT 
 %data and performs cross validation. 75% of the data is used for training,
 %the remaining 25% goes to cross validation.
@@ -21,43 +23,55 @@ startIMT_analysis=tic;
 
 %This section of code gets the IMT data
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+switch dataset
+    case 'erlotinib'
+        %for erlotinib
+        load('experimental_data/erlot_imts_April2017.mat')
+        data=imt_b;
+        fprintf('Selected erlotinib dataset\n');
 
-%for erlotinib
-%load('experimental_data/erlot_imts_April2017.mat')
-%data=imt_b;
+    case 'AT1'
+        %for AT1 
+        load('experimental_data/AT1_imts_April2017.mat')
+        data=imt_b;
 
-%for AT1 
-load('experimental_data/AT1_imts_April2017.mat')
-data=imt_b;
+    case 'MCF'
+        %for MCF
+        load('experimental_data/MCF_imts_April2017.mat')
+        data=imt_b;
 
-%for MCF
-%load('experimental_data/MCF_imts_April2017.mat')
-%data=imt_b;
+    case 'DMSO'
+        %for DMSO 
+        load('experimental_data/DMSO_imts_April2017.mat')
+        data=imt_b;
 
-%for DMSO 
-%load('experimental_data/DMSO_imts_April2017.mat')
-%data=imt_b;
+    case 'synthetic'
+        data=[];
+        for i=1:50
+            data = [data, random('InverseGaussian',0.3,0.8)];
+        end
+        data = data';
 
+    case 'CHX'
+        %for CHX
+        load('experimental_data/CHX_imts_April2017.mat')
+        data=imt_b;
 
-% data=[];
-% for i=1:10
-%     data = [data, random('InverseGaussian',0.3,0.8)];
-% end
-% data = data';
+    case 'FUCCI'
+        %for FUCCI data
+        %GetProcessedDataParts
+        load('experimental_data/FUCCI_April2017.mat')
+        data=imt_b;
+        %data=G2Time_b;
+        %data=G1Time_b;
 
-%for CHX
-%load('experimental_data/CHX_imts_April2017.mat')
-%data=imt_b;
+    case 'PC9'
+        %for PC9 cells
+        load('experimental_data/PC9_April2017.mat')
+end
 
-%for FUCCI data
-%GetProcessedDataParts
-%load('experimental_data/FUCCI_April2017.mat')
-%data=imt_b;
-%data=G2Time_b;
-%data=G1Time_b;
-
-%for PC9 cells
-%load('experimental_data/PC9_April2017.mat')
+fprintf('Selected data:\n');
+data
 
 %select data for the purpose of training and data for the purpose of cross
 %validating
@@ -343,5 +357,9 @@ plot(tt,convolv_2invG_noreset(tt,pd_max_noreset(1),pd_max_noreset(2),pd_max_nore
 
 fprintf("Total runtime:\n")
 toc(startIMT_analysis)
+
+save(strcat('crossvalid_results/',dataset,'.mat'));
+
+end
 
 
