@@ -9,4 +9,5 @@ Y=(1./(s*(2*pi*(X-l).^3).^(1/2))).*exp(-(m*(X-l)-1).^2./(2*s^2*(X-l)));
 %in this case we stipilate that the pdf returns realmin
 Y=real(Y);
 Y=max(Y, realmin);
+Y=reshape(Y,length(Y),1);
 end

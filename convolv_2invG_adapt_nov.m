@@ -84,6 +84,7 @@ T2=(1/m(2))*((1+(9/4)*(s(2)^4/m(2)^2))^.5-(3/2)*(s(2)^2/m(2)));
 %In this case, the probability of each is set to realmin
 if max(t)<=0
     P=realmin.*ones(size(t));
+    P=reshape(P,length(P),1);
     
 % otherwise we need to calculate P for each point in t
 else
@@ -94,6 +95,7 @@ else
     % 0 and Maxt with step size h. the even spacing is important when
     % calculating the convolution later
     x=0:h:Maxt;
+    x=x';
     
     % evaluate the sub-distributions at each point in x
     y=onestagepdf2(x,m(1),s(1));
@@ -182,8 +184,8 @@ else
                     N=length(y);
                     % only the first N elements of the convolution are valid
                     C=C(1:N);
-                    I=zeros(1,n);
-                    P=zeros(1,n);
+                    I=zeros(n,1);
+                    P=zeros(n,1);
                     for i=1:n
                         %find element of x that is closest to t(i)
                         [~,I(i)]=min((t(i)-x).^2);
@@ -196,7 +198,6 @@ else
                         end
                     end
                     %toc
-                    P=P';
                     P0=max(realmin,P);
                     logP0=sum(log(P0));
                 % END FUNCTION DOTHECONVOLUTION_INNER
@@ -207,6 +208,7 @@ else
                         fprintf('h1=%f ',h1);
                     end
                     x=0:h1:Maxt;
+                    x=x';
                     y=onestagepdf2(x,m(1),s(1));
                     z=onestagepdf2(x,m(2),s(2));
 
@@ -220,8 +222,8 @@ else
                         N=length(y);
                         % only the first N elements of the convolution are valid
                         C=C(1:N);
-                        I=zeros(1,n);
-                        P=zeros(1,n);
+                        I=zeros(n,1);
+                        P=zeros(n,1);
                         for i=1:n
                             %find element of x that is closest to t(i)
                             [~,I(i)]=min((t(i)-x).^2);
@@ -234,7 +236,6 @@ else
                             end
                         end
                         %toc
-                        P=P';
                         P1=max(realmin,P);
                         logP1=sum(log(P1));
                     % END FUNCTION DOTHECONVOLUTION_INNER
@@ -265,8 +266,8 @@ else
                 N=length(y);
                 % only the first N elements of the convolution are valid
                 C=C(1:N);
-                I=zeros(1,n);
-                P=zeros(1,n);
+                I=zeros(n,1);
+                P=zeros(n,1);
                 for i=1:n
                 %find element of x that is closest to t(i)
                     [~,I(i)]=min((t(i)-x).^2);
@@ -279,7 +280,6 @@ else
                     end
                 end
                 %toc
-                P=P';
                 P0=max(realmin,P);
                 logP0=sum(log(P0));
             % END FUNCTION DOTHECONVOLUTION_INNER
@@ -290,6 +290,7 @@ else
                     fprintf('h1=%f ',h1);
                 end
                 x=0:h1:Maxt;
+                x=x';
                 y=onestagepdf2(x,m(1),s(1));
                 z=onestagepdf2(x,m(2),s(2));
 
@@ -303,8 +304,8 @@ else
                     N=length(y);
                     % only the first N elements of the convolution are valid
                     C=C(1:N);
-                    I=zeros(1,n);
-                    P=zeros(1,n);
+                    I=zeros(n,1);
+                    P=zeros(n,1);
                     for i=1:n
                     %find element of x that is closest to t(i)
                         [~,I(i)]=min((t(i)-x).^2);
@@ -317,7 +318,6 @@ else
                         end
                     end
                     %toc
-                    P=P';
                     P1=max(realmin,P);
                     logP1=sum(log(P1));
                 % END FUNCTION DOTHECONVOLUTION_INNER
@@ -339,4 +339,5 @@ if timing_output == 1
     toc
     fprintf('\n\n');
 end
+P=reshape(P,length(P),1);
 end
