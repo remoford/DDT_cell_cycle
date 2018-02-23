@@ -95,7 +95,7 @@ C3 = sum((datatrain-C1).^3)/(length(datatrain));
 
 % prepare statistical parameters
         vry = [.1 .5 .9]';
-        r = [.01 .5 .99]';
+        r = [.01 .5 .9]';
         %c1 and c2 give the possible initial guess means and variances
         c1 = C1*vry;
         c2 = C2*vry;
@@ -206,7 +206,7 @@ C3 = sum((datatrain-C1).^3)/(length(datatrain));
             x0 = P_noreset(i,:);
             fprintf("optimizing seed %d: m1=%f s1=%f m2=%f s2=%f r=%f\n", i, x0(1),x0(2),x0(3),x0(4),x0(5));
             f=@(x,m1,s1,m2,s2,r)convolv_2invG_var_reset(x,m1,s1,m2,s2,r,.01);
-            [p,conf]=mle(datatrain,'pdf',f,'start',x0, 'upperbound', [Inf Inf Inf Inf 1],'lowerbound',[0 0 0 0 0],'options',options);
+            [p,conf]=mle(datatrain,'pdf',f,'start',x0, 'upperbound', [Inf Inf Inf Inf 0.9],'lowerbound',[0 0 0 0 0],'options',options);
             fprintf("optimized: m1=%f s1=%f m2=%f s2=%f r=%f\n", p(1),p(2),p(3),p(4),p(5));
             %save parameters
             pd_varreset(i,:,kk)=p;
