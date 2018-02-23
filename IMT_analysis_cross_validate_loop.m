@@ -1,4 +1,4 @@
-function []=IMT_analysis_cross_validate(dataset)
+function []=IMT_analysis_cross_validate_loop(dataset)
 
 % This file fits two-stage with and without perfect reset models to IMT 
 %data and performs cross validation. 75% of the data is used for training,
