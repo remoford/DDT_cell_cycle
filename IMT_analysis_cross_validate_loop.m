@@ -72,7 +72,19 @@ end
 
 fprintf('Selected data:\n');
 data
+for kk=1:10
+    
+    %select data for the purpose of training and data for the purpose of cross
+%validating
 
+dataperm=randperm(length(data));
+%size of training data set
+trainsize=3*floor(length(data)/4);
+%take the first 3/4 of the permuted data for training
+datatrain=data(dataperm(1:trainsize));
+%keep the remaining data for cross validation
+datacross=data(dataperm(trainsize+1:length(dataperm)));
+    
 %get intial parameter values for each model. 
 
 %get sample statistics for fitting initializing the model parameters
@@ -126,7 +138,7 @@ C3 = sum((datatrain-C1).^3)/(length(datatrain));
         % optimal parameters for each initial guess
         pd_noreset=zeros(length(P_noreset),5,10);
         %likelihoods for each initial guess
-        ld_noreset = NaN*ones(length(P_norest),10);
+        ld_noreset = NaN*ones(length(P_noreset),10);
         %flag is one if a part is approximated as a Dirac delta, so there
         %is no varaibility in time spent in that part.
         flag_noreset=zeros(length(P_noreset),10);
@@ -163,18 +175,6 @@ C3 = sum((datatrain-C1).^3)/(length(datatrain));
         
          options = statset('MaxIter',10000, 'MaxFunEvals',10000,'TolFun',1e-3,'TolX',1e-3,'TolTypeFun','rel', 'TolTypeX', 'abs');
          
-for kk=1:10
-    
-%select data for the purpose of training and data for the purpose of cross
-%validating
-
-dataperm=randperm(length(data));
-%size of training data set
-trainsize=3*floor(length(data)/4);
-%take the first 3/4 of the permuted data for training
-datatrain=data(dataperm(1:trainsize));
-%keep the remaining data for cross validation
-datacross=data(dataperm(trainsize+1:length(dataperm)));
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
