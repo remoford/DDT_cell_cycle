@@ -9,9 +9,9 @@ end
 
 if outofbounds == 1
     fprintf("out of bounds, penalizing!\n");
-    sum = 0;
+    sum = realmax;
 else
-    sum = objfun(params);  
+    sum = 0-objfun(params);  
 end
 
 
