@@ -20,7 +20,7 @@ function [P,h,flag,E]=convolv_2invG_var_reset(t,m1,s1,m2,s2,r,h)
 % E = is the relative error in the likelihood of the data due to the numerical integration
 
 % log the parameters we were called with
-fprintf('start noreset: m1=%f s1=%f m2=%f s2=%f r=%f\n',m2,s1,m2,s2,r);
+fprintf('start var_reset: m1=%f s1=%f m2=%f s2=%f r=%f\n',m2,s1,m2,s2,r);
 
 if r < 0
     fprintf("WARNING: r < 0, taking absolute value!!!\n");
@@ -53,7 +53,7 @@ y0=-r:hh:r;
 a=1-y0;
 PP=zeros(length(t),length(y0));
 for i=1:length(y0)
-[PP(:,i),h,flag,E]=convolv_2invG_adapt_nov(t,m(1),s(1),m(2)/a(i),s(2)/a(i),h);
+[PP(:,i),~,flag,E]=convolv_2invG_adapt_nov(t,m(1),s(1),m(2)/a(i),s(2)/a(i),h);
 end
 P=(hh/(2*r))*sum(PP,2);
 

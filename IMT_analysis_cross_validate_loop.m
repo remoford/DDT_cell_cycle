@@ -19,6 +19,8 @@ function []=IMT_analysis_cross_validate_loop(dataset)
 %lcrossflag_noreset=the log likelihood of the data given the best model with  
 %no reset and a flag.
 
+rng(1);
+
 startIMT_analysis=tic;
 
 %This section of code gets the IMT data
@@ -205,8 +207,17 @@ C3 = sum((datatrain-C1).^3)/(length(datatrain));
             %sets initial guess
             x0 = P_noreset(i,:);
             fprintf("optimizing seed %d: m1=%f s1=%f m2=%f s2=%f r=%f\n", i, x0(1),x0(2),x0(3),x0(4),x0(5));
-            f=@(x,m1,s1,m2,s2,r)convolv_2invG_var_reset(x,m1,s1,m2,s2,r,.01);
+            f=@(x, m1,s1,m2,s2,r)convolv_2invG_var_reset(x,m1,s1,m2,s2,r,.01);
+            
+            
+            %myll=@(m1,s1,m2,s2,r)loglikelihood(datatrain, f, 5,[m1 s1 m2 s2 r]);
+            %p=fminsearch(myll,x0);
+            
             [p,conf]=mle(datatrain,'pdf',f,'start',x0, 'upperbound', [Inf Inf Inf Inf 0.9],'lowerbound',[0 0 0 0 0],'options',options);
+            
+            
+            
+            
             fprintf("optimized: m1=%f s1=%f m2=%f s2=%f r=%f\n", p(1),p(2),p(3),p(4),p(5));
             %save parameters
             pd_varreset(i,:,kk)=p;
