@@ -35,8 +35,8 @@ end
 % E = is the relative error in the likelihood of the data due to the numerical integration
 
 % log the parameters we were called with
-fprintf(1,'convolv_2invG(m1=%.17g, s1=%.17g, m2=%.17g, s2=%.17g)\n', ... 
-    m1, s1, m2, s2);
+%fprintf(1,'convolv_2invG(m1=%.17g, s1=%.17g, m2=%.17g, s2=%.17g)\n', ... 
+%    m1, s1, m2, s2);
 
 % ????
 flag=0;
