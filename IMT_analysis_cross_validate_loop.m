@@ -209,7 +209,7 @@ C3 = sum((datatrain-C1).^3)/(length(datatrain));
             fprintf("optimizing seed %d: m1=%f s1=%f m2=%f s2=%f r=%f\n", i, x0(1),x0(2),x0(3),x0(4),x0(5));
             f=@(x, m1,s1,m2,s2,r)convolv_2invG_var_reset(x,m1,s1,m2,s2,r,.01);
             
-            fminsearch_options = optimset('Display','iter','PlotFcns',@optimplotfval);
+            fminsearch_options = optimset('Display','iter','PlotFcns',@optimplotfval,'TolFun',1, 'TolX', 0.01);
             myll=@(params)loglikelihood(datatrain, f, 5, params);
             objfun=@(params)penalize(myll, 5, params, [realmin  realmax;realmin  realmax;realmin  realmax;realmin  realmax;0.001  0.999])
             p=fminsearch(objfun,x0,fminsearch_options);
