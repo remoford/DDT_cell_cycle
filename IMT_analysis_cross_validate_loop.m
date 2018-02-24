@@ -211,7 +211,7 @@ C3 = sum((datatrain-C1).^3)/(length(datatrain));
             
             fminsearch_options = optimset('Display','iter','PlotFcns',@optimplotfval);
             myll=@(params)loglikelihood(datatrain, f, 5, params);
-            objfun=@(params)penalize(datatrain, myll, 5, params, [realmin  realmax;realmin  realmax;realmin  realmax;realmin  realmax;realmin  realmax])
+            objfun=@(params)penalize(myll, 5, params, [realmin  realmax;realmin  realmax;realmin  realmax;realmin  realmax;0.001  0.999])
             p=fminsearch(objfun,x0,fminsearch_options);
             
             %[p,conf]=mle(datatrain,'pdf',f,'start',x0, 'upperbound', [Inf Inf Inf Inf 0.9],'lowerbound',[0 0 0 0 0],'options',options);
