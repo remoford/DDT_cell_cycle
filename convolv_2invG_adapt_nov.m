@@ -139,7 +139,7 @@ else
 
             % ????
             checkerror=100;
-            hh=.001;
+            hh=.01;
             numinusr=nu-r;
             nuplusr=nu+r;
             teeyou=Tu;
@@ -149,12 +149,16 @@ else
             RightTail=.001*sum(onestagepdf2((nuplusr:.001:teeyou),m(1),s(1)));
             check1=LeftTail+RightTail;
             %Reduce step size in above Riemann sum until the error is small,
-            %meaning that the Riemann sum is converging.
-            while checkerror>10^(-4)
+            %meaning that the Riemann sum is converging.  This bound on the
+            %error ensures the error in the estimate of gm*check1 is on the
+            %order of 10^-3, and hence an order of magnitude lower than the
+            %value at which the approximation is accepted
+            while checkerror>(10^(-3))/gm
                 hh=.5*hh;
                 ck1=hh*sum(onestagepdf2((0:hh:nu-r),m(1),s(1)))+hh*sum(onestagepdf2((nu+r:hh:Tu),m(1),s(1)));
                 checkerror=abs(check1-ck1);
                 check1=ck1;
+                
             end
             check2=gm*check1;
             %     end

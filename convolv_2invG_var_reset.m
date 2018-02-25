@@ -48,14 +48,32 @@ m=m(I);
 s=s(I);
 
 %grid of possible reset values
-hh=.01*r;
+EE=10;
+hh=r;
 y0=-r:hh:r;
 a=1-y0;
+%numerically integrate the pdg against the distribution of initial values 
 PP=zeros(length(t),length(y0));
-for i=1:length(y0)
+for i=1:(length(y0)-1)
 [PP(:,i),~,flag,E]=convolv_2invG_adapt_nov(t,m(1),s(1),m(2)/a(i),s(2)/a(i),h);
 end
+%P is a vector that gives the probability of each element in t.
 P=(hh/(2*r))*sum(PP,2);
+logP1=sum(log(P));
+ %adapt the step size in the numerical integration until the relative error 
+ %in the log likelihood is small.
+while EE>.001*abs(logP1)
+    hh=h*.5;
+    logP0=logP1;
+    for i=1:(length(y0)-1)
+        [PP(:,i),~,flag,E]=convolv_2invG_adapt_nov(t,m(1),s(1),m(2)/a(i),s(2)/a(i),h);
+    end
+    %P is a vector that gives the probability of each element in t.
+    P=(hh/(2*r))*sum(PP,2);
+    logP1=sum(log(P));
+    E=abs(logP1-logP0);
+end
+
 
 %if flag == 1
 %    fprintf("WARNING: Applied dirac delta approximiation, r inconsequential!\n");
