@@ -8,7 +8,7 @@ for i=1:numParams
 end
 
 if outofbounds == 1
-    fprintf("out of bounds, penalizing!\n");
+    %fprintf("out of bounds, penalizing!\n");
     sum = realmax;
 else
     sum = 0-objfun(params);  

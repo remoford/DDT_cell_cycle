@@ -378,7 +378,9 @@ if noreset_enable
 
     %flag is one if a part is approximated as a Dirac delta, so there
     %is no varaibility in time spent in that part.
-    % THIS IS AN INTERNAL VARIABLE DECLARATION
+    % THIS IS SCOPED OUTSIDE OF THE KK
+    % LOOP!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    %!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     flag_noreset=zeros(length(P_noreset),10);
 
     % THIS IS AN INTERNAL VARIABLE DECLARATION
@@ -444,10 +446,18 @@ if noreset_enable
 
         % setup our function handle
         f=@(x,m1,s1,m2,s2,r)convolv_2invG_noreset(x,m1,s1,m2,s2,r,.01);
+        
+        
+        %fminsearch_options = optimset('Display','iter','PlotFcns',@optimplotfval,'TolFun',1, 'TolX', 0.01);
+        fminsearch_options = optimset('TolFun',10, 'TolX', 1);
+        myll=@(params)loglikelihood(datatrain, f, 5, params);
+        objfun=@(params)penalize(myll, 5, params, [realmin  realmax;realmin  realmax;realmin  realmax;realmin  realmax;0.001  0.999])
+        p=fminsearch(objfun,x0,fminsearch_options);
+        
 
         % P AND CONF ARE INTERNAL VARIABLES TO THIS LOOP BUT ARE OVERRIDDEN BY LATER
         % SECTIONS. THIS IS A FAILURE TO ISOLATE
-        [p,conf]=mle(datatrain,'pdf',f,'start',x0, 'upperbound', [Inf Inf Inf Inf 1],'lowerbound',[0 0 0 0 0],'options',options);
+        %[p,conf]=mle(datatrain,'pdf',f,'start',x0, 'upperbound', [Inf Inf Inf Inf 1],'lowerbound',[0 0 0 0 0],'options',options);
 
         fprintf("optimized: m1=%f s1=%f m2=%f s2=%f r=%f\n", p(1),p(2),p(3),p(4),p(5));
 
@@ -528,6 +538,7 @@ if noreset_enable
     [max_ld_noreset(kk,1),row_ld_noreset(kk,1)]=max(ld_true_noreset)
 
     %best nonflagged model
+    pd_max_noreset(kk,:)
     pd_max_noreset(kk,:) = p_noreset(row_ld_noreset(kk,1),:,kk)
 
     %cross validate
