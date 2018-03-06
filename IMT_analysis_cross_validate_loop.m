@@ -23,6 +23,14 @@ rng(1);
 
 startIMT_analysis=tic;
 
+varreset_enable=0;
+noreset_enable=1;
+twostage_enable=0;
+analysis_enable=0;
+
+options = statset('MaxIter',10000, 'MaxFunEvals',10000,'TolFun',1e-3,'TolX',1e-3,'TolTypeFun','rel', 'TolTypeX', 'abs');
+
+
 %This section of code gets the IMT data
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 switch dataset
@@ -96,273 +104,491 @@ C2 = var(datatrain);
 C3 = sum((datatrain-C1).^3)/(length(datatrain));
 
 % prepare statistical parameters
-        vry = [.1 .5 .9]';
-        r = [.01 .5 .9]';
-        %c1 and c2 give the possible initial guess means and variances
-        c1 = C1*vry;
-        c2 = C2*vry;
-        %m and s give the possible initial guess parameter values
-        m = 1./c1;
-        s = (c2./c1.^3).^0.5;
-        N = length(vry);
+vry = [.1 .5 .9]';
+r = [.01 .5 .9]';
 
-        % prepare parameter seeds
-        
-        %get all pairs of the form [m(i),s(j)]
-        %these pairs represent all possible unique 
-        %parameter choices for each part of the cell
-        %cycle.  
-        pcomb = allcomb(m,s);
-        %place paramter triples into a cell.  The parameter choices for each part
-        %are now indexed
-        pcell = cell(length(pcomb),1);
-        for i = 1:length(pcomb)
-            pcell{i} = pcomb(i,:);
-        end
-        %get all pairs of indices for the parameter 
-        %choices for each part of the cycle to get all 
-        %parameter choices for the entire cycle
-        id = allcomb(1:length(pcomb),1:length(pcomb));
-        %sort the pairs in ascending order.  
-        %This equates choices of the form [i,j] and [j,i].
-        id = sort(id,2);
-        %remove repeats
-        id = unique(id,'rows');
-        %create a matrix of unique parameter choices for the cell cycle
-        P_noreset = zeros(length(id)*length(r),5);
-        
-        for ii = 1:length(id)
-            for jj=1:length(r)
-            P_noreset(length(r)*(ii-1)+jj,:) = [pcell{id(ii,1)},pcell{id(ii,2)},r(jj)];
-            end
-        end
-        
-        % optimal parameters for each initial guess
-        pd_noreset=zeros(length(P_noreset),5,10);
-        %likelihoods for each initial guess
-        ld_noreset = NaN*ones(length(P_noreset),10);
-        %flag is one if a part is approximated as a Dirac delta, so there
-        %is no varaibility in time spent in that part.
-        flag_noreset=zeros(length(P_noreset),10);
-        
-        max_ld_noreset=zeros(10,1);
-        pd_max_noreset=zeros(10,5);
-        row_ld_noreset=zeros(10,1);
-        lcross_noreset=zeros(10,1);
-        max_ldflag_noreset=zeros(10,1);
-        row_ldflag_noreset=zeros(10,1);
-        pd_maxflag_noreset=zeros(10,5);
-        lcrossflag_noreset=zeros(10,1);
-        
-         % optimal parameters for each initial guess
-        pd_varreset=zeros(length(P_noreset),5,10);
-        %likelihoods for each initial guess
-        ld_varreset = NaN*ones(length(P_noreset),10);
-        %flag is one if a part is approximated as a Dirac delta, so there
-        %is no varaibility in time spent in that part.
-        flag_varreset=zeros(length(P_noreset),10);
-        
-        max_ld_varreset=zeros(10,1);
-        pd_max_varreset=zeros(10,5);
-        row_ld_varreset=zeros(10,1);
-        lcross_varreset=zeros(10,1);
-        max_ldflag_varreset=zeros(10,1);
-        row_ldflag_varreset=zeros(10,1);
-        pd_maxflag_varreset=zeros(10,5);
-        lcrossflag_varreset=zeros(10,1);
-        
-        P = zeros(length(id),4);
-        for ii = 1:length(id)
-            P(ii,:) = [pcell{id(ii,1)},pcell{id(ii,2)}];
-        end
+%c1 and c2 give the possible initial guess means and variances
+c1 = C1*vry;
+c2 = C2*vry;
 
-        pd=zeros(length(P),4,10);
-        ld = NaN*ones(length(P),10);
-        flag=zeros(length(P),10);
-        
-        max_ld=zeros(10,1);
-        pd_max=zeros(10,4);
-        row_ld=zeros(10,1);
-        lcross=zeros(10,1);
-        max_ldflag=zeros(10,1);
-        row_ldflag=zeros(10,1);
-        pd_maxflag=zeros(10,4);
-        lcrossflag=zeros(10,1);
-        
-        AICc=zeros(10,3);
-        rel=zeros(10,3);
-        
-         options = statset('MaxIter',10000, 'MaxFunEvals',10000,'TolFun',1e-3,'TolX',1e-3,'TolTypeFun','rel', 'TolTypeX', 'abs');
+%m and s give the possible initial guess parameter values
+m = 1./c1;
+s = (c2./c1.^3).^0.5;
+N = length(vry);
+
+% prepare parameter seeds
+
+%get all pairs of the form [m(i),s(j)]
+%these pairs represent all possible unique 
+%parameter choices for each part of the cell
+%cycle.  
+pcomb = allcomb(m,s);
+
+%place paramter triples into a cell.  The parameter choices for each part
+%are now indexed
+pcell = cell(length(pcomb),1);
+for i = 1:length(pcomb)
+    pcell{i} = pcomb(i,:);
+end
+
+%get all pairs of indices for the parameter 
+%choices for each part of the cycle to get all 
+%parameter choices for the entire cycle
+id = allcomb(1:length(pcomb),1:length(pcomb));
+
+%sort the pairs in ascending order.  
+%This equates choices of the form [i,j] and [j,i].
+id = sort(id,2);
+
+%remove repeats
+id = unique(id,'rows');
+
+
+if varreset_enable
+
+    % optimal parameters for each initial guess
+    pd_varreset=zeros(length(P_noreset),5,10);
+    %likelihoods for each initial guess
+    ld_varreset = NaN*ones(length(P_noreset),10);
+    %flag is one if a part is approximated as a Dirac delta, so there
+    %is no varaibility in time spent in that part.
+    flag_varreset=zeros(length(P_noreset),10);
+
+    max_ld_varreset=zeros(10,1);
+    pd_max_varreset=zeros(10,5);
+    row_ld_varreset=zeros(10,1);
+    lcross_varreset=zeros(10,1);
+    max_ldflag_varreset=zeros(10,1);
+    row_ldflag_varreset=zeros(10,1);
+    pd_maxflag_varreset=zeros(10,5);
+    lcrossflag_varreset=zeros(10,1);
+
+end
+
+if twostage_enable
+    P = zeros(length(id),4);
+    for ii = 1:length(id)
+        P(ii,:) = [pcell{id(ii,1)},pcell{id(ii,2)}];
+    end
+
+    pd=zeros(length(P),4,10);
+    ld = NaN*ones(length(P),10);
+    flag=zeros(length(P),10);
+    max_ld=zeros(10,1);
+    pd_max=zeros(10,4);
+    row_ld=zeros(10,1);
+    lcross=zeros(10,1);
+    max_ldflag=zeros(10,1);
+    row_ldflag=zeros(10,1);
+    pd_maxflag=zeros(10,4);
+    lcrossflag=zeros(10,1);
+end
+
+
+if analysis_enable
+    AICc=zeros(10,3);
+    rel=zeros(10,3);
+end
+
+
          
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-%Fit two-stage model with imperfect reset
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+         
+         
+         
+if varreset_enable
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    %Fit two-stage model with imperfect reset
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
     % BEGIN FUNCTION FIT_TWOSTAGE_VAR_RESET
 
-        
-        for i=1:(length(P_noreset))
-            startOptimization=tic;
-            %sets initial guess
-            x0 = P_noreset(i,:);
-            fprintf("optimizing seed %d: m1=%f s1=%f m2=%f s2=%f r=%f\n", i, x0(1),x0(2),x0(3),x0(4),x0(5));
-            f=@(x, m1,s1,m2,s2,r)convolv_2invG_var_reset(x,m1,s1,m2,s2,r,.01);
-            
-            fminsearch_options = optimset('Display','iter','PlotFcns',@optimplotfval,'TolFun',1, 'TolX', 0.01);
-            myll=@(params)loglikelihood(datatrain, f, 5, params);
-            objfun=@(params)penalize(myll, 5, params, [realmin  realmax;realmin  realmax;realmin  realmax;realmin  realmax;0.001  0.999])
-            p=fminsearch(objfun,x0,fminsearch_options);
-            
-            %[p,conf]=mle(datatrain,'pdf',f,'start',x0, 'upperbound', [Inf Inf Inf Inf 0.9],'lowerbound',[0 0 0 0 0],'options',options);
-            
-            
-            
-            
-            fprintf("optimized: m1=%f s1=%f m2=%f s2=%f r=%f\n", p(1),p(2),p(3),p(4),p(5));
-            %save parameters
-            pd_varreset(i,:,kk)=p;
-            %gets the likelihhod of the parameters
-            [l,hp,flag_varreset(kk,i),E]=convolv_2invG_var_reset(datatrain,p(1),p(2),p(3),p(4),p(5),.01);
-            l=sum(log(l));
-            fprintf("log-liklihood=%f\n",l);
-            if flag_varreset(i) == 1
-                fprintf("used dirac delta approximation in final result\n");
-            end
-            ld_varreset(kk,i)=l;
-            toc(startOptimization)
-            fprintf("\n");
+
+    for i=1:(length(P_noreset))
+        startOptimization=tic;
+        %sets initial guess
+        x0 = P_noreset(i,:);
+        fprintf("optimizing seed %d: m1=%f s1=%f m2=%f s2=%f r=%f\n", i, x0(1),x0(2),x0(3),x0(4),x0(5));
+        f=@(x, m1,s1,m2,s2,r)convolv_2invG_var_reset(x,m1,s1,m2,s2,r,.01);
+
+        fminsearch_options = optimset('Display','iter','PlotFcns',@optimplotfval,'TolFun',1, 'TolX', 0.01);
+        myll=@(params)loglikelihood(datatrain, f, 5, params);
+        objfun=@(params)penalize(myll, 5, params, [realmin  realmax;realmin  realmax;realmin  realmax;realmin  realmax;0.001  0.999])
+        p=fminsearch(objfun,x0,fminsearch_options);
+
+        %[p,conf]=mle(datatrain,'pdf',f,'start',x0, 'upperbound', [Inf Inf Inf Inf 0.9],'lowerbound',[0 0 0 0 0],'options',options);
+
+        fprintf("optimized: m1=%f s1=%f m2=%f s2=%f r=%f\n", p(1),p(2),p(3),p(4),p(5));
+        %save parameters
+        pd_varreset(i,:,kk)=p;
+        %gets the likelihhod of the parameters
+        [l,hp,flag_varreset(kk,i),E]=convolv_2invG_var_reset(datatrain,p(1),p(2),p(3),p(4),p(5),.01);
+        l=sum(log(l));
+        fprintf("log-liklihood=%f\n",l);
+        if flag_varreset(i) == 1
+            fprintf("used dirac delta approximation in final result\n");
         end
-        
-        % we previously optimized with a larger step size, recalculate with
-        % a smaller stepsize after the fact
-%         ld_true_noreset=zeros(length(ld),1);
-%         for i=1:length(ld)
-%             [l,hp_true(i),flag_true_noreset(i),E_true(i)]=convolv_2invG_noreset(datatrain,pd_noreset(i,1),pd_noreset(i,2),pd_noreset(i,3),pd_noreset(i,4),pd_noreset(i,5),.001);
-%             ld_true_noreset(i)=sum(log(l));
-%         end
-        
-% skip recalculation for now
+        ld_varreset(kk,i)=l;
+        toc(startOptimization)
+        fprintf("\n");
+    end
 
-ld_true_varreset=ld_varreset(kk,:);
-flag_true_varreset=flag_varreset(kk,:);
+            % we previously optimized with a larger step size, recalculate with
+            % a smaller stepsize after the fact
+    %         ld_true_noreset=zeros(length(ld),1);
+    %         for i=1:length(ld)
+    %             [l,hp_true(i),flag_true_noreset(i),E_true(i)]=convolv_2invG_noreset(datatrain,pd_noreset(i,1),pd_noreset(i,2),pd_noreset(i,3),pd_noreset(i,4),pd_noreset(i,5),.001);
+    %             ld_true_noreset(i)=sum(log(l));
+    %         end
 
-       %find the best flagged model and the best model that is not flagged
-       
-       %indices of flagged models
-       indflag_varreset=find(flag_true_varreset==1);
-       %ibndices of no flag models
-       indnoflag_varreset=find(flag_true_varreset==0);
-      
-       
-       ld_trueflag_varreset=ld_true_varreset(indflag_varreset);
-       ld_true_varreset=ld_true_varreset(indnoflag_varreset);
-       
-       pflag_varreset=pd_varreset(indflag_varreset,:);
-       p_varreset=pd_varreset(indnoflag_varreset,:);
+    % skip recalculation for now
 
-        % common to each fit, consider factoring out
-        
-        [max_ld_varreset(kk,1),row_ld_varreset(kk,1)]=max(ld_true_varreset)
-        %best nonflagged model
-        pd_max_varreset(kk,:) = p_varreset(row_ld_varreset(kk,1),:,kk)
-        %cross validate
-        [ll]=convolv_2invG_varreset(datacross,pd_max_varreset(kk,1),pd_max_varreset(kk,2),pd_max_varreset(kk,3),pd_max_varreset(kk,4),pd_max_varreset(kk,5),.01);
-        lcross_varreset(kk,1)=sum(log(ll));
-        
-         if isempty(indflag_varreset)==0
+    ld_true_varreset=ld_varreset(kk,:);
+    flag_true_varreset=flag_varreset(kk,:);
+
+    %find the best flagged model and the best model that is not flagged
+
+    %indices of flagged models
+    indflag_varreset=find(flag_true_varreset==1);
+
+    %ibndices of no flag models
+    indnoflag_varreset=find(flag_true_varreset==0);
+
+
+    ld_trueflag_varreset=ld_true_varreset(indflag_varreset);
+    ld_true_varreset=ld_true_varreset(indnoflag_varreset);
+
+    pflag_varreset=pd_varreset(indflag_varreset,:);
+    p_varreset=pd_varreset(indnoflag_varreset,:);
+
+    % common to each fit, consider factoring out
+    [max_ld_varreset(kk,1),row_ld_varreset(kk,1)]=max(ld_true_varreset)
+
+    %best nonflagged model
+    pd_max_varreset(kk,:) = p_varreset(row_ld_varreset(kk,1),:,kk)
+
+    %cross validate
+    [ll]=convolv_2invG_varreset(datacross,pd_max_varreset(kk,1),pd_max_varreset(kk,2),pd_max_varreset(kk,3),pd_max_varreset(kk,4),pd_max_varreset(kk,5),.01);
+    lcross_varreset(kk,1)=sum(log(ll));
+
+    if isempty(indflag_varreset)==0
         [max_ldflag_varreset(kk,1),row_ldflag_varreset(kk,1)]=max(ld_trueflag_varreset)
+
         %best flagged model
         pd_maxflag_varreset(kk,:) = pflag_varreset(row_ldflag_varreset(kk,1),:,kk)
+
         %perform cross validation
         [ll]=convolv_2invG_varreset(datacross,pd_maxflag_varreset(1),pd_maxflag_varreset(2),pd_maxflag_varreset(3),pd_maxflag_varreset(4),pd_maxflag_varreset(5),.01);
         lcrossflag_varreset(kk,1)=sum(log(ll));
-         end
-        
-        
-        
+    end
+
     % END FUNCTION FIT_TWOSTAGE_VAR_RESET
+end
+    
+    
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-%Fit two-stage model with imperfect reset
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-    % BEGIN FUNCTION FIT_TWOSTAGE_NORESET
 
-        
-        for i=1:(length(P_noreset))
-            startOptimization=tic;
-            %sets initial guess
-            x0 = P_noreset(i,:);
-            fprintf("optimizing seed %d: m1=%f s1=%f m2=%f s2=%f r=%f\n", i, x0(1),x0(2),x0(3),x0(4),x0(5));
-            f=@(x,m1,s1,m2,s2,r)convolv_2invG_noreset(x,m1,s1,m2,s2,r,.01);
-            [p,conf]=mle(datatrain,'pdf',f,'start',x0, 'upperbound', [Inf Inf Inf Inf 1],'lowerbound',[0 0 0 0 0],'options',options);
-            fprintf("optimized: m1=%f s1=%f m2=%f s2=%f r=%f\n", p(1),p(2),p(3),p(4),p(5));
-            %save parameters
-            pd_noreset(i,:,kk)=p;
-            %gets the likelihhod of the parameters
-            [l,hp,flag_noreset(kk,i),E]=convolv_2invG_noreset(datatrain,p(1),p(2),p(3),p(4),p(5),.01);
-            l=sum(log(l));
-            fprintf("log-liklihood=%f\n",l);
-            if flag_noreset(i) == 1
-                fprintf("used dirac delta approximation in final result\n");
-            end
-            ld_noreset(kk,i)=l;
-            toc(startOptimization)
-            fprintf("\n");
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+if noreset_enable
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    %Fit two-stage model with imperfect reset
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    % need to identify what are the inputs to this section of code and move
+    % them here if they are not referenced externally to the block
+    
+    % INPUTS:
+    % pcell
+    % id
+    
+    % OUTPUTS:
+    % pd_max_noreset
+    % lcross_noreset
+    
+    
+    %create a matrix of unique parameter choices for the cell cycle
+    % THIS IS AN INTERNAL VARIABLE DECLARATION
+    P_noreset = zeros(length(id)*length(r),5);
+
+    for ii = 1:length(id)
+        for jj=1:length(r)
+        P_noreset(length(r)*(ii-1)+jj , :) = [pcell{id(ii,1)}, pcell{id(ii,2)}, r(jj)];
         end
-        
-        % we previously optimized with a larger step size, recalculate with
-        % a smaller stepsize after the fact
-%         ld_true_noreset=zeros(length(ld),1);
-%         for i=1:length(ld)
-%             [l,hp_true(i),flag_true_noreset(i),E_true(i)]=convolv_2invG_noreset(datatrain,pd_noreset(i,1),pd_noreset(i,2),pd_noreset(i,3),pd_noreset(i,4),pd_noreset(i,5),.001);
-%             ld_true_noreset(i)=sum(log(l));
-%         end
-        
-% skip recalculation for now
+    end
 
-ld_true_noreset=ld_noreset(kk,:);
-flag_true_noreset=flag_noreset(kk,:);
+    % optimal parameters for each initial guess
+    % THIS IS AN INTERNAL VARIABLE DECLARATION
+    pd_noreset=zeros(length(P_noreset),5,10);
 
-       %find the best flagged model and the best model that is not flagged
-       
-       %indices of flagged models
-       indflag_noreset=find(flag_true_noreset==1);
-       %ibndices of no flag models
-       indnoflag_noreset=find(flag_true_noreset==0);
-      
-       
-       ld_trueflag_noreset=ld_true_noreset(indflag_noreset);
-       ld_true_noreset=ld_true_noreset(indnoflag_noreset);
-       
-       pflag_noreset=pd_noreset(indflag_noreset,:);
-       p_noreset=pd_noreset(indnoflag_noreset,:);
+    %likelihoods for each initial guess
+    % THIS IS AN INTERNAL VARIABLE DECLARATION
+    ld_noreset = NaN*ones(length(P_noreset),10);
 
-        % common to each fit, consider factoring out
+    %flag is one if a part is approximated as a Dirac delta, so there
+    %is no varaibility in time spent in that part.
+    % THIS IS AN INTERNAL VARIABLE DECLARATION
+    flag_noreset=zeros(length(P_noreset),10);
+
+    % THIS IS AN INTERNAL VARIABLE DECLARATION
+    % FURTHER, WHILE WE ASSIGN TO THIS LATER, IT IS NEVER ACTUALLY USED
+    % WHAT DOES THIS REPRESENT?
+    max_ld_noreset=zeros(10,1);
+
+    % FIX ME FIX ME
+    % setting pd_max_noreset to a specific size causes problems later when
+    % assigning a differnet size array to it
+    %
+    % I'm going to fix this by moving this from a jagged array to an object
+    % array
+    %
+    %noreset_results(1:10) = results
+    %noreset_results(1)
+    
+    % THIS IS AN OUTPUT USED LATER IN THE ANALYSIS
+    % WHAT DOES THIS REPRESENT?
+    pd_max_noreset=zeros(10,5);
+    
+    % THIS IS AN INTERNAL VARIABLE DECLARATION
+    % WHAT DOES THIS REPRESENT?
+    row_ld_noreset=zeros(10,1);
+    
+    % THIS IS AN OUTPUT USED LATER IN THE ANALYSIS
+    % WHAT DOES THIS REPRESENT?
+    lcross_noreset=zeros(10,1);
+    
+    % THIS IS AN INTERNAL VARIABLE DECLARATION
+    % FURTHER, WHILE WE ASSIGN TO THIS LATER, IT IS NEVER ACTUALLY USED
+    % WHAT DOES THIS REPRESENT?
+    max_ldflag_noreset=zeros(10,1);
+    
+    % THIS IS AN INTERNAL VARIABLE DECLARATION
+    % WHAT DOES THIS REPRESENT?
+    row_ldflag_noreset=zeros(10,1);
+    
+    
+    % THIS IS AN INTERNAL VARIABLE DECLARATION
+    % WHAT DOES THIS REPRESENT?
+    pd_maxflag_noreset=zeros(10,5);
+    
+    
+    % THIS IS AN INTERNAL VARIABLE DECLARATION
+    % FURTHER, WHILE WE ASSIGN TO THIS LATER, IT IS NEVER ACTUALLY USED
+    % WHAT DOES THIS REPRESENT?
+    lcrossflag_noreset=zeros(10,1);
+    
+    
+    
+
+
+    for i=1:(length(P_noreset))
+        startOptimization=tic;
+
+        %sets initial guess
+        % X0 IS AN INTERNAL VARIABLE TO THIS LOOP BUT IS OVERRIDDEN BY LATER
+        % SECTIONS. THIS IS A FAILURE TO ISOLATE
+        x0 = P_noreset(i,:);
+
+        fprintf("optimizing seed %d: m1=%f s1=%f m2=%f s2=%f r=%f\n", i, x0(1),x0(2),x0(3),x0(4),x0(5));
+
+        % setup our function handle
+        f=@(x,m1,s1,m2,s2,r)convolv_2invG_noreset(x,m1,s1,m2,s2,r,.01);
+
+        % P AND CONF ARE INTERNAL VARIABLES TO THIS LOOP BUT ARE OVERRIDDEN BY LATER
+        % SECTIONS. THIS IS A FAILURE TO ISOLATE
+        [p,conf]=mle(datatrain,'pdf',f,'start',x0, 'upperbound', [Inf Inf Inf Inf 1],'lowerbound',[0 0 0 0 0],'options',options);
+
+        fprintf("optimized: m1=%f s1=%f m2=%f s2=%f r=%f\n", p(1),p(2),p(3),p(4),p(5));
+
+        %save parameters
+        % THIS IS AN INTERNAL VARIABLE DECLARATION
+        % WHAT DOES THIS REPRESENT?
+        pd_noreset(i,:,kk)=p;
+
+
+        %gets the likelihhod of the parameters
+        % WHAT IS l?
+        % WHAT IS HP?
+        % WHAT IS E?
+        % ARE THESE INTERNALLY SCOPED TO THIS LOOP?
+        [l,hp,flag_noreset(kk,i),E]=convolv_2invG_noreset(datatrain,p(1),p(2),p(3),p(4),p(5),.01);
         
-        [max_ld_noreset(kk,1),row_ld_noreset(kk,1)]=max(ld_true_noreset)
-        %best nonflagged model
-        pd_max_noreset(kk,:) = p_noreset(row_ld_noreset(kk,1),:,kk)
-        %cross validate
-        [ll]=convolv_2invG_noreset(datacross,pd_max_noreset(kk,1),pd_max_noreset(kk,2),pd_max_noreset(kk,3),pd_max_noreset(kk,4),pd_max_noreset(kk,5),.01);
-        lcross_noreset(kk,1)=sum(log(ll));
+        l=sum(log(l));
         
-         if isempty(indflag_noreset)==0
+        fprintf("log-liklihood=%f\n",l);
+
+        if flag_noreset(i) == 1
+            fprintf("used dirac delta approximation in final result\n");
+        end
+
+        ld_noreset(kk,i)=l;
+        toc(startOptimization)
+        fprintf("\n");
+    end
+
+            % we previously optimized with a larger step size, recalculate with
+            % a smaller stepsize after the fact
+    %         ld_true_noreset=zeros(length(ld),1);
+    %         for i=1:length(ld)
+    %             [l,hp_true(i),flag_true_noreset(i),E_true(i)]=convolv_2invG_noreset(datatrain,pd_noreset(i,1),pd_noreset(i,2),pd_noreset(i,3),pd_noreset(i,4),pd_noreset(i,5),.001);
+    %             ld_true_noreset(i)=sum(log(l));
+    %         end
+
+    % skip recalculation for now
+
+    % THIS IS AN INTERNAL VARIABLE DECLARATION
+    % WHAT DOES THIS REPRESENT?
+    ld_true_noreset=ld_noreset(kk,:);
+    
+    % THIS IS AN INTERNAL VARIABLE DECLARATION
+    % WHAT DOES THIS REPRESENT?
+    flag_true_noreset=flag_noreset(kk,:);
+
+    %find the best flagged model and the best model that is not flagged
+
+    % indices of flagged models
+    % THIS IS AN INTERNAL VARIABLE DECLARATION
+    indflag_noreset=find(flag_true_noreset==1);
+    
+    
+    %ibndices of no flag models
+    % THIS IS AN INTERNAL VARIABLE DECLARATION
+    indnoflag_noreset=find(flag_true_noreset==0);
+
+    % THIS IS AN INTERNAL VARIABLE DECLARATION
+    % WHAT DOES THIS REPRESENT?
+    ld_trueflag_noreset=ld_true_noreset(indflag_noreset);
+    
+    
+    
+    ld_true_noreset=ld_true_noreset(indnoflag_noreset);
+
+    
+    % THIS IS AN INTERNAL VARIABLE DECLARATION
+    % WHAT DOES THIS REPRESENT?
+    pflag_noreset=pd_noreset(indflag_noreset,:);
+    
+    % THIS IS AN INTERNAL VARIABLE DECLARATION
+    % WHAT DOES THIS REPRESENT?
+    p_noreset=pd_noreset(indnoflag_noreset,:);
+
+    % common to each fit, consider factoring out
+
+    [max_ld_noreset(kk,1),row_ld_noreset(kk,1)]=max(ld_true_noreset)
+
+    %best nonflagged model
+    pd_max_noreset(kk,:) = p_noreset(row_ld_noreset(kk,1),:,kk)
+
+    %cross validate
+    [ll]=convolv_2invG_noreset(datacross,pd_max_noreset(kk,1),pd_max_noreset(kk,2),pd_max_noreset(kk,3),pd_max_noreset(kk,4),pd_max_noreset(kk,5),.01);
+    lcross_noreset(kk,1)=sum(log(ll));
+
+    
+    if isempty(indflag_noreset)==0
         [max_ldflag_noreset(kk,1),row_ldflag_noreset(kk,1)]=max(ld_trueflag_noreset)
         %best flagged model
         pd_maxflag_noreset(kk,:) = pflag_noreset(row_ldflag_noreset(kk,1),:,kk)
         %perform cross validation
         [ll]=convolv_2invG_noreset(datacross,pd_maxflag_noreset(1),pd_maxflag_noreset(2),pd_maxflag_noreset(3),pd_maxflag_noreset(4),pd_maxflag_noreset(5),.01);
         lcrossflag_noreset(kk,1)=sum(log(ll));
-         end
-        
-        
-        
-    % END FUNCTION FIT_TWOSTAGE_NORESET
+    end
 
 
+
+        % END FUNCTION FIT_TWOSTAGE_NORESET
+end
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+if twostage_enable
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %Fit two-stage model
@@ -428,28 +654,58 @@ flag_true_noreset=flag_noreset(kk,:);
      
     % END FUNCTION FIT_TWOSTAGElcross_noreset(kk,:)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-%rel is the relative probability of a model compared to another
-[AICc(kk,:) rel(kk,:)]=akaikec([lcross(kk,:) lcross_noreset(kk,:) lcross_inh(kk,:)],length(datacross),[4 5 5])
-
-[counts,centers] = hist(datacross,20);
-tot=sum(counts);
-wdth=centers(2)-centers(1);
-hght=counts/(tot*wdth);
-bar(centers,hght)
-hold on
-tt=min(data):.01:max(data);
-plot(tt,convolv_2invG_adapt_nov(tt,pd_max(kk,1),pd_max(kk,2),pd_max(kk,3),pd_max(kk,4),.01),'b');
-plot(tt,convolv_2invG_noreset(tt,pd_max_noreset(kk,1),pd_max_noreset(kk,2),pd_max_noreset(kk,3),pd_max_noreset(kk,4),pd_max_noreset(kk,5),.01),'r');
-plot(tt,convolv_2invG_var_reset(tt,pd_max_var_reset(kk,1),pd_max_var_reset(kk,2),pd_max_var_reset(kk,3),pd_max_var_reset(kk,4),pd_max_var_reset(kk,5),.01),'g');
-
-title('IMT with simple and no reset model')
-xlabel('Intermitotic Times (IMT)')
-ylabel('Probability density function (pdf)')
-legend('cells', 'simple model','no reset model')
+end
 
 
-savefig(gcf,sprintf('IMT_hist%d',kk))
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+if analysis_enable
+
+    %rel is the relative probability of a model compared to another
+    [AICc(kk,:) rel(kk,:)]=akaikec([lcross(kk,:) lcross_noreset(kk,:) lcross_inh(kk,:)],length(datacross),[4 5 5])
+
+    [counts,centers] = hist(datacross,20);
+    tot=sum(counts);
+    wdth=centers(2)-centers(1);
+    hght=counts/(tot*wdth);
+    bar(centers,hght)
+    hold on
+    tt=min(data):.01:max(data);
+    plot(tt,convolv_2invG_adapt_nov(tt,pd_max(kk,1),pd_max(kk,2),pd_max(kk,3),pd_max(kk,4),.01),'b');
+    plot(tt,convolv_2invG_noreset(tt,pd_max_noreset(kk,1),pd_max_noreset(kk,2),pd_max_noreset(kk,3),pd_max_noreset(kk,4),pd_max_noreset(kk,5),.01),'r');
+    plot(tt,convolv_2invG_var_reset(tt,pd_max_var_reset(kk,1),pd_max_var_reset(kk,2),pd_max_var_reset(kk,3),pd_max_var_reset(kk,4),pd_max_var_reset(kk,5),.01),'g');
+
+    title('IMT with simple and no reset model')
+    xlabel('Intermitotic Times (IMT)')
+    ylabel('Probability density function (pdf)')
+    legend('cells', 'simple model','no reset model')
+
+
+    savefig(gcf,sprintf('IMT_hist%d',kk))
+
+end
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 end
