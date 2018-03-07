@@ -19,6 +19,8 @@ function []=IMT_analysis_cross_validate(dataset)
 %lcrossflag_noreset=the log likelihood of the data given the best model with  
 %no reset and a flag.
 
+rng(1);
+
 startIMT_analysis=tic;
 
 
