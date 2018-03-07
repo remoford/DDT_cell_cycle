@@ -132,6 +132,8 @@ flag_true_noreset=flag_noreset;
         [lcross_noreset]=convolv_2invG_noreset(datacross,pd_max_noreset(1),pd_max_noreset(2),pd_max_noreset(3),pd_max_noreset(4),pd_max_noreset(5),.01);
         lcross_noreset=sum(log(lcross_noreset));
         
+        pd_maxflag_noreset=[];
+        lcrossflag_noreset=[];
          if isempty(indflag_noreset)==0
         [max_ldflag_noreset,row_ldflag_noreset]=max(ld_trueflag_noreset)
         %best flagged model
