@@ -26,6 +26,10 @@ startIMT_analysis=tic;
 TolFun = 100;
 TolX = 10;
 
+% GO SLOW!
+TolFun = 1;
+TolX = 0.001;
+
 
 %This section of code gets the IMT data
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
