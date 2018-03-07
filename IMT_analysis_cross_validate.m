@@ -70,8 +70,8 @@ switch dataset
         load('experimental_data/PC9_April2017.mat')
 end
 
-fprintf('Selected data:\n');
-data
+%fprintf('Selected data:\n');
+%data
 
 %select data for the purpose of training and data for the purpose of cross
 %validating
@@ -79,34 +79,23 @@ data
 dataperm=randperm(length(data));
 %size of training data set
 trainsize=3*floor(length(data)/4);
+
 %take the first 3/4 of the permuted data for training
 datatrain=data(dataperm(1:trainsize));
+
 %keep the remaining data for cross validation
 datacross=data(dataperm(trainsize+1:length(dataperm)));
 
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-
-%get sample statistics for fitting initializing the model parameters
-num = length(datatrain);
-C1 = mean(datatrain);
-C2 = var(datatrain);
-C3 = sum((datatrain-C1).^3)/(length(datatrain));
-
-
-
+%optimize noreset model
 [pd_max_noreset, pd_maxflag_noreset, lcross_noreset, lcrossflag_noreset] = noreset_optimize(datatrain, datacross)
 
-[pd_max, pd_maxflag, lcros, lcrossflag] = twostage_optimize(datatrain, datacross)
-
+%optimize twostage model
+[pd_max, pd_maxflag, lcross, lcrossflag] = twostage_optimize(datatrain, datacross)
 
 %rel is the relative probability of a model compared to another
 [AICc rel]=akaikec([lcross lcross_noreset],length(datacross),[4 5])
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-
+%make some plots
 [counts,centers] = hist(datacross,20);
 tot=sum(counts);
 wdth=centers(2)-centers(1);
@@ -116,16 +105,16 @@ hold on
 tt=min(data):.01:max(data);
 plot(tt,convolv_2invG_adapt_nov(tt,pd_max(1),pd_max(2),pd_max(3),pd_max(4),.01),'b');
 plot(tt,convolv_2invG_noreset(tt,pd_max_noreset(1),pd_max_noreset(2),pd_max_noreset(3),pd_max_noreset(4),pd_max_noreset(5),.01),'r');
-
 title('IMT with simple and no reset model')
 xlabel('Intermitotic Times (IMT)')
 ylabel('Probability density function (pdf)')
 legend('cells', 'simple model','no reset model')
 
+% save the results to a file
+save(strcat('crossvalid_results/',dataset,'.mat'));
+
 fprintf("Total runtime:\n")
 toc(startIMT_analysis)
-
-save(strcat('crossvalid_results/',dataset,'.mat'));
 
 end
 
