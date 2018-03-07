@@ -21,6 +21,12 @@ function []=IMT_analysis_cross_validate(dataset)
 
 startIMT_analysis=tic;
 
+
+% GO FAST!
+TolFun = 100;
+TolX = 10;
+
+
 %This section of code gets the IMT data
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 switch dataset
@@ -87,10 +93,10 @@ datatrain=data(dataperm(1:trainsize));
 datacross=data(dataperm(trainsize+1:length(dataperm)));
 
 %optimize noreset model
-[pd_max_noreset, pd_maxflag_noreset, lcross_noreset, lcrossflag_noreset] = noreset_optimize(datatrain, datacross)
+[pd_max_noreset, pd_maxflag_noreset, lcross_noreset, lcrossflag_noreset] = noreset_optimize(datatrain, datacross, TolFun, TolX)
 
 %optimize twostage model
-[pd_max, pd_maxflag, lcross, lcrossflag] = twostage_optimize(datatrain, datacross)
+[pd_max, pd_maxflag, lcross, lcrossflag] = twostage_optimize(datatrain, datacross, TolFun, TolX)
 
 %rel is the relative probability of a model compared to another
 [AICc rel]=akaikec([lcross lcross_noreset],length(datacross),[4 5])

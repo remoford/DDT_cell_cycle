@@ -1,19 +1,9 @@
-function [pd_max, pd_maxflag, lcross, lcrossflag] = twostage_optimize(datatrain, datacross)
-
-
+function [pd_max, pd_maxflag, lcross, lcrossflag] = twostage_optimize(datatrain, datacross, TolFun, TolX)
 %get sample statistics for fitting initializing the model parameters
 num = length(datatrain);
 C1 = mean(datatrain);
 C2 = var(datatrain);
 C3 = sum((datatrain-C1).^3)/(length(datatrain));
-
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-%Fit two-stage model
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-% BEGIN FUNCTION FIT_TWOSTAGE
 
 % prepare statistical parameters
 vry = [.25 .5 .75]';
@@ -36,21 +26,26 @@ N = length(vry);
 %parameter choices for each part of the cell
 %cycle.  
 pcomb = allcomb(m,s);
+
 %place paramter pairs into a cell.  The parameters choices for each part
 %are now indexed
 pcell = cell(length(pcomb),1);
 for i = 1:length(pcomb)
     pcell{i} = pcomb(i,:);
 end
+
 %get all pairs of indices for the parameter 
 %choices for each part of the cycle to get all 
 %parameter choices for the entire cycle
 id = allcomb(1:length(pcomb),1:length(pcomb));
+
 %sort the pairs in ascending order.  
 %This equates choices of the form [i,j] and [j,i].
 id = sort(id,2);
+
 %remove repeats
 id = unique(id,'rows');
+
 %create a matrix of unique parameter choices for the cell cycle
 P = zeros(length(id),4);
 for ii = 1:length(id)
@@ -60,8 +55,8 @@ end
 % optimize parameters
 pd=zeros(length(P),4);
 ld = NaN*ones(length(P),1);
-options = statset('MaxIter',10000, 'MaxFunEvals',10000,'TolFun',1e-3,'TolX',1e-3,'TolTypeFun','rel', 'TolTypeX', 'abs');
 flag=zeros(length(id),1);
+
 for i=1:length(id)  
     startOptimization=tic;
     x0 = P(i,:);
@@ -73,7 +68,7 @@ for i=1:length(id)
     %[p,conf1]=mle(datatrain,'pdf',f,'start',x0, 'upperbound', [Inf Inf Inf Inf],'lowerbound',[0 0 0 0],'options',options)
 
 
-    fminsearch_options = optimset('TolFun',10, 'TolX', 1);
+    fminsearch_options = optimset('TolFun',TolFun, 'TolX', TolX);
     myll=@(params)loglikelihood(datatrain, f, 4, params);
     objfun=@(params)penalize(myll, 4, params, [realmin  realmax;realmin  realmax;realmin  realmax;realmin  realmax]);
     p=fminsearch(objfun,x0,fminsearch_options);
@@ -116,8 +111,10 @@ pd=pd(indnoflag,:);
 
 % common to each fit, consider factoring out
 [max_ld,row_ld]=max(ld_true)
+
 %best nonflagged model
 pd_max = pd(row_ld,:)
+
 %perform cross validation
 [lcross]=convolv_2invG_adapt_nov(datacross,pd_max(1),pd_max(2),pd_max(3),pd_max(4),.01);
 lcross=sum(log(lcross));
@@ -127,18 +124,13 @@ lcrossflag=[];
 if isempty(indflag)==0
     % common to each fit, consider factoring out
     [max_ldflag,row_ldflag]=max(ld_trueflag)
+    
     %best flagged model
     pd_maxflag = pdflag(row_ldflag,:)
+    
     %perform cross validation
     [lcrossflag]=convolv_2invG_adapt_nov(datacross,pd_maxflag(1),pd_maxflag(2),pd_maxflag(3),pd_maxflag(4),.01);
     lcrossflag=sum(log(lcrossflag));
 end
-
-
-
-
-% END FUNCTION FIT_TWOSTAGE
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
 
 end
