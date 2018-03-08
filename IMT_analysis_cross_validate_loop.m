@@ -106,7 +106,7 @@ lcrossflag = {};
 
 AICc = {};
 rel = {};
-for kk=1:1
+for kk=1:10
     
 %select data for the purpose of training and data for the purpose of cross
 %validating
@@ -135,7 +135,7 @@ end
 if analysis_enable
 
     %rel is the relative probability of a model compared to another
-    [AICc{kk} rel{kk}]=akaikec([lcross{kk} lcross_noreset{kk} lcross_inh{kk}],length(datacross),[4 5 5])
+    [AICc{kk} rel{kk}]=akaikec([lcross{kk} lcross_noreset{kk}],length(datacross),[4 5])
 
     [counts,centers] = hist(datacross,20);
     tot=sum(counts);
@@ -145,8 +145,8 @@ if analysis_enable
     hold on
     tt=min(data):.01:max(data);
     plot(tt,convolv_2invG_adapt_nov(tt,pd_max{kk}(1),pd_max{kk}(2),pd_max{kk}(3),pd_max{kk}(4),.01),'b');
-    plot(tt,convolv_2invG_noreset(tt,pd_max_noreset{kk}(1),pd_max_noreset{kk}(2),pd_max_noreset{kk}(3),pd_max_noreset{kk}(4),pd_max_noreset(kk,5),.01),'r');
-    plot(tt,convolv_2invG_var_reset(tt,pd_max_var_reset{kk}(1),pd_max_var_reset{kk}(2),pd_max_var_reset{kk}(3),pd_max_var_reset{kk}(4),pd_max_var_reset{kk}(5),.01),'g');
+    plot(tt,convolv_2invG_noreset(tt,pd_max_noreset{kk}(1),pd_max_noreset{kk}(2),pd_max_noreset{kk}(3),pd_max_noreset{kk}(4),pd_max_noreset{kk}(5),.01),'r');
+    %plot(tt,convolv_2invG_var_reset(tt,pd_max_var_reset{kk}(1),pd_max_var_reset{kk}(2),pd_max_var_reset{kk}(3),pd_max_var_reset{kk}(4),pd_max_var_reset{kk}(5),.01),'g');
 
     title('IMT with simple and no reset model')
     xlabel('Intermitotic Times (IMT)')
@@ -154,7 +154,7 @@ if analysis_enable
     legend('cells', 'simple model','no reset model')
 
 
-    savefig(gcf,sprintf('IMT_hist%d',kk))
+    %savefig(gcf,sprintf('IMT_hist%d',kk))
 
 end
 
@@ -164,7 +164,7 @@ end
 fprintf("Total runtime:\n")
 toc(startIMT_analysis)
 
-save(strcat('crossvalid_results/',dataset,'.mat'));
+save(strcat('crossvalid_results/',dataset,'_loop.mat'));
 
 end
 
