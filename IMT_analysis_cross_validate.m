@@ -23,8 +23,8 @@ startIMT_analysis=tic;
 
 
 % GO FAST!
-TolFun = 100;
-TolX = 10;
+%TolFun = 100;
+%TolX = 10;
 
 % GO SLOW!
 TolFun = 1;
