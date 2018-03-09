@@ -24,12 +24,12 @@ function []=IMT_analysis_cross_validate_loop(dataset)
 rng(1);
 
 % GO FAST!
-TolFun = 100;
-TolX = 10;
+%TolFun = 100;
+%TolX = 10;
 
 % GO SLOW!
-%TolFun = 1;
-%TolX = 0.001;
+TolFun = 1;
+TolX = 0.001;
 
 startIMT_analysis=tic;
 
