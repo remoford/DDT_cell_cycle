@@ -74,13 +74,21 @@ switch dataset
         
     case 'synthetic_mixed_show_problem_with_noreset'
         data=[];
-        mixed_mean_primary = 10;
+        mixed_mean_primary = 100;
         mixed_mean_secondary = 2*mixed_mean_primary;
-        fraction_primary = 0.3;
-        fraction_secondary = 1-fraction_primary;
-        for i=1:300
-            data = [data, fraction_primary*random('InverseGaussian',1/mixed_mean_primary,0.8)+fraction_secondary*random('InverseGaussian',mixed_mean_secondary,0.8)];
+        for i=1:700
+             newpoint = random('InverseGaussian',1/mixed_mean_primary,0.8)
+             if newpoint < 100
+                data = [data, newpoint];
+             end
         end
+        for i=1:300
+            newpoint = random('InverseGaussian',1/mixed_mean_secondary,0.8);
+            if newpoint < 100
+                data = [data, newpoint];
+            end
+        end
+                
         data = data';
 
     case 'CHX'
