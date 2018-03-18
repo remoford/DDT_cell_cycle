@@ -65,10 +65,19 @@ switch dataset
         load('experimental_data/DMSO_imts_April2017.mat')
         data=imt_b;
 
-    case 'synthetic'
+    case 'synthetic_single_invg'
         data=[];
         for i=1:50
             data = [data, random('InverseGaussian',0.3,0.8)];
+        end
+        data = data';
+        
+    case 'synthetic_mixed_show_problem_with_noreset'
+        data=[];
+        mixed_mean_primary = 10;
+        mixed_mean_secondary = 2*mixed_mean_primary;
+        for i=1:50
+            data = [data, 0.3*random('InverseGaussian',1/mixed_mean_primary,0.8)+0.3*random('InverseGaussian',mixed_mean_secondary,0.8)];
         end
         data = data';
 
