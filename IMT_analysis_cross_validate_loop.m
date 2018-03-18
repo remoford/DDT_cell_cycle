@@ -76,8 +76,10 @@ switch dataset
         data=[];
         mixed_mean_primary = 10;
         mixed_mean_secondary = 2*mixed_mean_primary;
-        for i=1:50
-            data = [data, 0.3*random('InverseGaussian',1/mixed_mean_primary,0.8)+0.3*random('InverseGaussian',mixed_mean_secondary,0.8)];
+        fraction_primary = 0.3;
+        fraction_secondary = 1-fraction_primary;
+        for i=1:300
+            data = [data, fraction_primary*random('InverseGaussian',1/mixed_mean_primary,0.8)+fraction_secondary*random('InverseGaussian',mixed_mean_secondary,0.8)];
         end
         data = data';
 
