@@ -104,14 +104,14 @@ else
     y=onestagepdf2(x,m(1),s(1));
     z=onestagepdf2(x,m(2),s(2));
     
-if sd(1)<.1 && sd(1)>=.01
+if sd(1)<.05 && sd(1)>=.01
         
         P=conv_window(t,m(1),s(1),m(2),s(2));
     
     % if the first pdf is very concentrated, check to see if it can be
     % approximated as a point-mass distribution
-    else
-        if sd(1)<.01
+end
+if sd(1)<.01
     
         % BEGIN FUNCTION TailMass
         % Input parameters: m, s, eps, T2, nu, sd,
@@ -183,92 +183,13 @@ if sd(1)<.1 && sd(1)>=.01
             P=onestagepdf_lag(t,mu,sigma,l);
             
             %Error in the approximation is may be too large, compute the
-            %full convolution.
+            %full convolution using the window.
         else
-            % BEGIN FUNCTION DOTHECONVOLUTION_OUTER
-            % Input parameters: E, m, s, Maxt, z, y, h, n, t, i, I, x
-            % Outputs: P
-            
-                % BEGIN FUNCTION ApproxConvolv
-                % Input parameters: z, y, h, n, t, i, I, x
-                % Outputs: logP0
-                    % find the discrete convolution of the vectors y and z
-                    % the (i-1)th element of v approximates the convolution of the pdfs 
-                    % over [0, x(i)] as a left-hand Riemann sum.
-                    C=conv(z,y)*h;
-                    N=length(y);
-                    % only the first N elements of the convolution are valid
-                    C=C(1:N);
-                    I=zeros(n,1);
-                    P=zeros(n,1);
-                    for i=1:n
-                        %find element of x that is closest to t(i)
-                        [~,I(i)]=min((t(i)-x).^2);
-                        %If t(i)<0 the probability is set to zero, otherwise the
-                        %probability is approxiated as a value from the vector x.
-                        if t(i)>0 && I(i)>1
-                            P(i)=C(I(i)-1);
-                        else
-                            P(i)=realmin;
-                        end
-                    end
-                    %toc
-                    P0=max(realmin,P);
-                    logP0=sum(log(P0));
-                % END FUNCTION DOTHECONVOLUTION_INNER
-            %Keep reducing the step size in the numerical integration until we are happy with the error.
-                while E>=.001*abs(logP0)
-                    h1=.5*h;
-                    if timing_output == 1
-                        fprintf('h1=%f ',h1);
-                    end
-                    x=0:h1:Maxt;
-                    x=x';
-                    y=onestagepdf2(x,m(1),s(1));
-                    z=onestagepdf2(x,m(2),s(2));
-
-                    % BEGIN FUNCTION DOTHECONVOLUTION_INNER
-                    % Input parameters: z, y, h1, n, t, i, I, x
-                    % Outputs: logP1
-                        % find the discrete convolution of the vectors y and z
-                        % the (i-1)th element of v approximates the convolution of the pdfs 
-                        % over [.001, x(i)] as a left-hand Riemann sum.
-                        C=conv(z,y)*h1;
-                        N=length(y);
-                        % only the first N elements of the convolution are valid
-                        C=C(1:N);
-                        I=zeros(n,1);
-                        P=zeros(n,1);
-                        for i=1:n
-                            %find element of x that is closest to t(i)
-                            [~,I(i)]=min((t(i)-x).^2);
-                            %If t(i)<0 the probability is set to zero, otherwise the
-                            %probability is approximated as a value from the vector x.
-                            if t(i)>0 && I(i)>1
-                                P(i)=C(I(i)-1);
-                            else
-                                P(i)=realmin;
-                            end
-                        end
-                        %toc
-                        P1=max(realmin,P);
-                        logP1=sum(log(P1));
-                    % END FUNCTION DOTHECONVOLUTION_INNER
-
-                    E=abs(logP1-logP0);
-                    P0=P1;
-                    logP0=logP1;
-                    h=h1;
-                    if timing_output == 1
-                        toc
-                    end
-                end
-                P=P0;
-            % END FUNCTION DOTHECONVOLUTION_OUTER
-        end  
+            P=conv_window(t,m(1),s(1),m(2),s(2));
         end
+end
     % pdf is not very concentrated so compute the convolution directly
-    if sd(1)>=.1
+    if sd(1)>=.05
         % BEGIN FUNCTION DOTHECONVOLUTION_OUTER
         % Input parameters: E, m, s, Maxt, z, y, h, n, t, i, I, x
         % Outputs: P

@@ -10,21 +10,29 @@ function [P] = conv_window(t,m1,s1,m2,s2)
 %m1 and s1 correspond to the more concentrated distribution
 h=.01;
 n=length(t);
+v=(s1.^2)./(m1.^3);
+%get standard deviation of concentrated part for determining the window of
+%the convolution.
+sd=v^.5;
+%SS is size of window.  Needs to be determined.
+SS=40*sd;
 %all times at which to compute the functions and their convolution
 x=0:h:max(t);
 x=x';
 %location of mode of concentrated distribution
 T1=(1/m1)*((1+(9/4)*(s1^4/m1^2))^.5-(3/2)*(s1^2/m1));
 %window over which the first pdf is highly concentrated
-w=T1-h:h:T1+h;
+%For now the size of the window is set to h=.01, let's pick a better size.
+w=T1-SS:h:T1+SS;
 %vector of values of highly concentrated pdf over window
 fw=onestagepdf2(w,m1,s1);
 %indicates if an x value is outside of the window
-w_indicator=@(x)((x<T1-h) + (x>T1+h));
-%vector of vales of highly concentrated pdf outside of window.  
+w_indicator=@(x)((x<T1-SS) + (x>T1+SS));
+%gives vector of vales of highly concentrated pdf outside of window.  
 fo_fun=@(x)onestagepdf2(x,m1,s1).*w_indicator(x);
 %vector of values of less concentrated pdf everywhere.
 g=onestagepdf2(x,m2,s2);
+%vector of vales of highly concentrated pdf outside of window. 
 fo=fo_fun(x);
 
 %Compute fo*g %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -100,7 +108,7 @@ I=zeros(n,1);
 % convolution.
 P=zeros(n,1);
 %gives the index of the first component of x that is inide the window. 
-k1=find(x<=T1-h,1,'last');
+k1=find(x<=T1-SS,1,'last');
 for i=1:n
     %find element of x that is closest to t(i)
     [~,I(i)]=min((t(i)-x).^2);
@@ -132,7 +140,7 @@ while E>=.001*abs(logP0)
     x=0:h1:max(t);
     x=x';
     %window over which the first pdf is highly concentrated
-    w=T1-h:h1:T1+h;
+    w=T1-SS:h1:T1+SS;
     %vector of values of highly concentrated pdf over window
     fw=onestagepdf2(w,m1,s1);
     %vector of values of less concentrated pdf everywhere.
@@ -150,7 +158,7 @@ while E>=.001*abs(logP0)
     I=zeros(n,1);
     P=zeros(n,1);
     %first and last indices that give x values in the window
-    k1=find(x<=T1-h,1,'last');
+    k1=find(x<=T1-SS,1,'last');
    for i=1:n
     %find element of x that is closest to t(i)
     [~,I(i)]=min((t(i)-x).^2);

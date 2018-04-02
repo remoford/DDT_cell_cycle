@@ -7,12 +7,12 @@ startIMT_analysis=tic;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %for erlotinib
-%load('experimental_data/erlot_imts_April2017.mat')
-%data=imt_b;
+load('experimental_data/erlot_imts_April2017.mat')
+data=imt_b;
 
 %for AT1 
-load('experimental_data/AT1_imts_April2017.mat')
-data=imt_b;
+%load('experimental_data/AT1_imts_April2017.mat')
+%data=imt_b;
 
 %for MCF
 %load('experimental_data/MCF_imts_April2017.mat')
