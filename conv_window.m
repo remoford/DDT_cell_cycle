@@ -144,7 +144,7 @@ while E>=.001*abs(logP0)
     % the (i-1)th element of v approximates the convolution of the pdfs 
     % over [0, x(i)] as a left-hand Riemann sum.
     C=conv(fw,g)*h1;
-    N=length(fw);
+    N=length(g);
     % only the first N elements of the convolution are valid
     C=C(1:N);
     I=zeros(n,1);
@@ -157,7 +157,7 @@ while E>=.001*abs(logP0)
     %If t(i)<0 the probability is set to zero, otherwise the
     %probability is approxiated as a value from the vector x.
     if t(i)>0 && I(i)>=k1
-        P(i)=C(k1+I(i)-1);
+        P(i)=C(I(i)-1-k1);
     else
         P(i)=0;
     end
