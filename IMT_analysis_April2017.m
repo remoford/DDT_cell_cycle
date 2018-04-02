@@ -261,13 +261,13 @@ if twostagefit == 1
         flag=zeros(length(id),1);
         for i=1:length(id)  
             x0 = P(i,:);
-            f=@(x,m1,s1,m2,s2)convolv_2invG_adapt_nov(x,m1,s1,m2,s2,.01);
-            %f=@(x,m1,s1,m2,s2)convolv_2invG_adapt2(x,m1,s1,m2,s2,.01,4);
+            %f=@(x,m1,s1,m2,s2)convolv_2invG_adapt_nov(x,m1,s1,m2,s2,.01);
+            f=@(x,m1,s1,m2,s2)convolv_2invG_adapt_window(x,m1,s1,m2,s2,.01);
             [p,conf1]=mle(data,'pdf',f,'start',x0, 'upperbound', [Inf Inf Inf Inf],'lowerbound',[0 0 0 0],'options',options)
             pd(i,:)=p;
             confint(:,:,i)=conf1(:);
-            %[l,flag(i)]=convolv_2invG_small_sigma_test_var(data,p(1),p(2),p(3),p(4),.01,4);
-            [l,hp(i),flag(i),E(i)]=convolv_2invG_adapt_nov(data,p(1),p(2),p(3),p(4),.01);
+            %[l,hp(i),flag(i),E(i)]=convolv_2invG_adapt_nov(data,p(1),p(2),p(3),p(4),.01);
+            [l,hp(i),flag(i),E(i)]=convolv_2invG_adapt_window(data,p(1),p(2),p(3),p(4),.01);
             l=sum(log(l));
             ld(i)=l    
 
@@ -277,7 +277,8 @@ if twostagefit == 1
         % a smaller stepsize after the fact
         ld_true=zeros(length(ld),1);
         for i=1:length(ld)
-            [l,hp_true(i),flag_true(i),E_true(i)]=convolv_2invG_adapt_nov(data,pd(i,1),pd(i,2),pd(i,3),pd(i,4),.001);
+            %[l,hp_true(i),flag_true(i),E_true(i)]=convolv_2invG_adapt_nov(data,pd(i,1),pd(i,2),pd(i,3),pd(i,4),.001);
+            [l,hp_true(i),flag_true(i),E_true(i)]=convolv_2invG_adapt_window(data,pd(i,1),pd(i,2),pd(i,3),pd(i,4),.001);
             ld_true(i)=sum(log(l));
         end
 
