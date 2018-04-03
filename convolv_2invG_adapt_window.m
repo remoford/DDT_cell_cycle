@@ -14,7 +14,7 @@
 
 function [P,h,flag,E]=convolv_2invG_adapt_window(t,m1,s1,m2,s2,h)
 
-timing_output=0;
+timing_output=1;
 if timing_output == 1
     tic
 end
@@ -220,11 +220,14 @@ end
                 P0=max(realmin,P);
                 logP0=sum(log(P0));
             % END FUNCTION DOTHECONVOLUTION_INNER
-
-            while E>=.001*abs(logP0)
+            
+            %EB=bound on the error
+            EB=min(-log(1-.2),log(1+.2));
+            while E>=EB
                 h1=.5*h;
                 if timing_output == 1
                     fprintf('h1=%f ',h1);
+                    fprintf('m1=%f s1=%f m2=%f s2=%f h=%f  ',m2,s1,m2,s2,h);
                 end
                 x=0:h1:Maxt;
                 x=x';

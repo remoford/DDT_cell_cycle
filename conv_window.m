@@ -15,6 +15,7 @@ v=(s1.^2)./(m1.^3);
 %the convolution.
 sd=v^.5;
 %SS is size of window.  Needs to be determined.
+%SS=pickthewindow(m1,s1);
 SS=40*sd;
 %all times at which to compute the functions and their convolution
 x=0:h:max(t);
@@ -58,8 +59,10 @@ P0=max(realmin,P);
 logP0=sum(log(P0));
 %Set the initial error to be large so that the numerical convolution will
 %be evaluated with at least two step sizes.
-E=abs(logP0);
-while E>=.001*abs(logP0)
+E=Inf;
+%EB=bound on the error
+EB=min(-log(1-.2),log(1+.2));
+while E>=EB
     h1=.5*h;
     x=0:h1:max(t);
     x=x';
@@ -133,8 +136,10 @@ P0=P(I(i)>=k1);
 logP0=sum(log(P0));
 %Set the initial error to be large so that the numerical convolution will
 %be evaluated with at least two step sizes.
-E=abs(logP0);
-while E>=.001*abs(logP0)
+E=Inf;
+%EB=bound on the error
+EB=min(-log(1-.2),log(1+.2));
+while E>=EB
     h1=.5*h;
     
     x=0:h1:max(t);
