@@ -78,7 +78,7 @@ s=s(I);
 % and should probably be moved inside that scope
 % T2 is the location of the mode of the second distribution, 
 % determined by a precomputed analytic expression.
-T1=(1/m(1))*((1+(9/4)*(s(1)^4/m(1)^2))^.5-(3/2)*(s(1)^2/m(1)));
+%T1=(1/m(1))*((1+(9/4)*(s(1)^4/m(1)^2))^.5-(3/2)*(s(1)^2/m(1)));
 T2=(1/m(2))*((1+(9/4)*(s(2)^4/m(2)^2))^.5-(3/2)*(s(2)^2/m(2)));
 
 %When called from convolv_3invG all of the components of t may be negative.
@@ -104,7 +104,7 @@ else
     y=onestagepdf2(x,m(1),s(1));
     z=onestagepdf2(x,m(2),s(2));
     
-if sd(1)<.05 && sd(1)>=.01
+if sd(1)<=.5 && sd(1)>=.01
         
         P=conv_window(t,m(1),s(1),m(2),s(2));
     
@@ -189,7 +189,7 @@ if sd(1)<.01
         end
 end
     % pdf is not very concentrated so compute the convolution directly
-    if sd(1)>=.05
+    if sd(1)>=.5
         % BEGIN FUNCTION DOTHECONVOLUTION_OUTER
         % Input parameters: E, m, s, Maxt, z, y, h, n, t, i, I, x
         % Outputs: P
