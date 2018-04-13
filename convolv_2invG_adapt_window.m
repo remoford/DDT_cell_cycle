@@ -12,7 +12,7 @@
 % cell cycle when called by convolv_3invG), m1=mu1, m2=mu2, s1=sigma1,
 % s2=sigma2.
 
-function [P,h,flag,E]=convolv_2invG_adapt_window(t,m1,s1,m2,s2)
+function [P,h,flag,E]=convolv_2invG_adapt_window(t,m1,s1,m2,s2,h)
 h=.1;
 timing_output=0;
 if timing_output == 1
