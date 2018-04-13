@@ -155,7 +155,7 @@ for i=1:n
             I_vector=I_vector(I_vector>0);
             
         end
-        P(i)=sum(C(I_vector-k1))*hw;
+        P(i)=sum(C(I_vector))*hw;
     else
         P(i)=0;
     end
