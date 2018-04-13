@@ -12,9 +12,9 @@
 % cell cycle when called by convolv_3invG), m1=mu1, m2=mu2, s1=sigma1,
 % s2=sigma2.
 
-function [P,h,flag,E]=convolv_2invG_adapt_window(t,m1,s1,m2,s2,h)
-
-timing_output=1;
+function [P,h,flag,E]=convolv_2invG_adapt_window(t,m1,s1,m2,s2)
+h=.1;
+timing_output=0;
 if timing_output == 1
     tic
 end
@@ -104,7 +104,7 @@ else
     y=onestagepdf2(x,m(1),s(1));
     z=onestagepdf2(x,m(2),s(2));
     
-if sd(1)<=.5 && sd(1)>=.01
+if sd(1)<=Inf && sd(1)>=.01
         
         P=conv_window(t,m(1),s(1),m(2),s(2));
     
@@ -189,7 +189,7 @@ if sd(1)<.01
         end
 end
     % pdf is not very concentrated so compute the convolution directly
-    if sd(1)>=.5
+    if sd(1)>=Inf
         % BEGIN FUNCTION DOTHECONVOLUTION_OUTER
         % Input parameters: E, m, s, Maxt, z, y, h, n, t, i, I, x
         % Outputs: P
@@ -205,13 +205,16 @@ end
                 C=C(1:N);
                 I=zeros(n,1);
                 P=zeros(n,1);
+                goback=.1/h;
                 for i=1:n
                 %find element of x that is closest to t(i)
                     [~,I(i)]=min((t(i)-x).^2);
                     %If t(i)<0 the probability is set to zero, otherwise the
                     %probability is approxiated as a value from the vector x.
                     if t(i)>0 && I(i)>1
-                        P(i)=C(I(i)-1);
+                        I_vector=(I(i)-goback+1):1:I(i);
+                        P(i)=sum(C(I_vector))*h;
+
                     else
                         P(i)=realmin;
                     end
@@ -223,8 +226,9 @@ end
             
             %EB=bound on the error
             EB=min(-log(1-.2),log(1+.2));
+            h1=.5*h;
             while E>=EB
-                h1=.5*h;
+                
                 if timing_output == 1
                     fprintf('h1=%f ',h1);
                     fprintf('m1=%f s1=%f m2=%f s2=%f h=%f  ',m2,s1,m2,s2,h);
@@ -241,18 +245,20 @@ end
                     % the (i-1)th element of v approximates the convolution of the pdfs 
                     % over [.001, x(i)] as a left-hand Riemann sum.
                     C=conv(z,y)*h1;
+                    I=2*I-1;
                     N=length(y);
                     % only the first N elements of the convolution are valid
                     C=C(1:N);
-                    I=zeros(n,1);
                     P=zeros(n,1);
+                    goback=goback*2;
                     for i=1:n
                     %find element of x that is closest to t(i)
                         [~,I(i)]=min((t(i)-x).^2);
                         %If t(i)<0 the probability is set to zero, otherwise the
                         %probability is approximated as a value from the vector x.
                         if t(i)>0 && I(i)>1
-                            P(i)=C(I(i)-1);
+                            I_vector=(I(i)-goback+1):1:I(i);
+                            P(i)=sum(C(I_vector))*h1;
                         else
                             P(i)=realmin;
                         end
@@ -265,7 +271,7 @@ end
                 E=abs(logP1-logP0);
                 P0=P1;
                 logP0=logP1;
-                h=h1;
+                h1=.5*h1;
                 if timing_output == 1
                     toc
                 end

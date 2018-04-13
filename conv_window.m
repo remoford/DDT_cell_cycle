@@ -147,6 +147,14 @@ for i=1:n
     %first condition is probably redundant.  
     if t(i)>0 && I(i)>k1
         I_vector=(I(i)-goback+1):1:I(i);
+        I_vector=I_vector-k1;
+        
+        if 0 >= min(I_vector)
+            %fprintf("OH NOES!!!!!!!\n")
+            
+            I_vector=I_vector(I_vector>0);
+            
+        end
         P(i)=sum(C(I_vector-k1))*hw;
     else
         P(i)=0;
