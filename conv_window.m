@@ -106,7 +106,7 @@ while E>=EB
     for i=1:n
         if t(i)>0 && I(i)>goback
             I_vector=(I(i)-goback+1):1:I(i);
-            P(i)=sum(C(I_vector))*h;
+            P(i)=sum(C(I_vector))*h1;
             
         else
             P(i)=realmin;
@@ -147,7 +147,7 @@ for i=1:n
     %first condition is probably redundant.  
     if t(i)>0 && I(i)>k1
         I_vector=(I(i)-goback+1):1:I(i);
-        P(i)=sum(C(I_vector-k1))*h1;
+        P(i)=sum(C(I_vector-k1))*hw;
     else
         P(i)=0;
     end
@@ -195,8 +195,24 @@ while E>=EB
     %If t(i)<0 the probability is set to zero, otherwise the
     %probability is approxiated as a value from the vector x.
     if t(i)>0 && I(i)>k1
+        
+        %fprintf("goback: %f\n",goback);
+        
         I_vector=(I(i)-goback+1):1:I(i);
-        P(i)=sum(C(I_vector-k1))*h1;
+        I_vector=I_vector-k1;
+        
+        if 0 >= min(I_vector)
+            %fprintf("OH NOES!!!!!!!\n")
+            
+            I_vector=I_vector(I_vector>0);
+            
+        end
+        
+        %fprintf("I_vector-k1:\n");
+        %I_vector-k1
+        
+        
+        P(i)=sum(C(I_vector))*h1;
     else
         P(i)=0;
     end

@@ -34,7 +34,7 @@ TolX = 0.001;
 startIMT_analysis=tic;
 
 varreset_enable=0;
-noreset_enable=1;
+noreset_enable=0;
 twostage_enable=1;
 analysis_enable=1;
 

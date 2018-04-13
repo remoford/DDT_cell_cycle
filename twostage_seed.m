@@ -5,7 +5,7 @@ C1 = mean(datatrain);
 C2 = var(datatrain);
 C3 = sum((datatrain-C1).^3)/(length(datatrain));
 
-numseeds=50
+numseeds=3
 
 % optimize parameters
 pd=zeros(numseeds,4);
@@ -87,7 +87,7 @@ for i=1:numseeds
     %m2log(i)=1/m2log(i);
     %s2log(i)=(s2log(i)^(2/3))*m2log(i);
     
-    lllog(i)=sum(log(convolv_2invG_adapt_nov(datatrain,p(1),p(2),p(3),p(4),0.1)));
+    lllog(i)=sum(log(convolv_2invG_adapt_nov_meanstddev(datatrain,p(1),p(2),p(3),p(4),0.1)));
     
     fprintf("mean sum delta %f", m1log(i) + m2log(i) - C1);
     fprintf("  sd sum       %f\n", s1log(i) + s2log(i));

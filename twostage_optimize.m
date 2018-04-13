@@ -63,7 +63,7 @@ for i=1:length(id)
 
     fprintf("optimizing seed %d: m1=%f s1=%f m2=%f s2=%f\n", i, x0(1),x0(2),x0(3),x0(4));
 
-    f=@(x,m1,s1,m2,s2)convolv_2invG_adapt_nov(x,m1,s1,m2,s2,.01);
+    f=@(x,m1,s1,m2,s2)convolv_2invG_adapt_window(x,m1,s1,m2,s2,.01);
     %f=@(x,m1,s1,m2,s2)convolv_2invG_adapt2(x,m1,s1,m2,s2,.01,4);
     %[p,conf1]=mle(datatrain,'pdf',f,'start',x0, 'upperbound', [Inf Inf Inf Inf],'lowerbound',[0 0 0 0],'options',options)
 
@@ -76,7 +76,7 @@ for i=1:length(id)
     fprintf("optimized: m1=%f s1=%f m2=%f s2=%f\n", p(1),p(2),p(3),p(4));
 
     pd(i,:)=p;
-    [l,hp(i),flag(i),E(i)]=convolv_2invG_adapt_nov(datatrain,p(1),p(2),p(3),p(4),.01);
+    [l,hp(i),flag(i),E(i)]=convolv_2invG_adapt_window(datatrain,p(1),p(2),p(3),p(4),.01);
     l=sum(log(l));
 
     fprintf("log-liklihood=%f\n",l);
