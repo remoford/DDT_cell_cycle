@@ -1,4 +1,4 @@
-function []=IMT_analysis_cross_validate_loop(dataset)
+function []=IMT_analysis_cross_validate_seed(dataset)
 
 % This file fits two-stage with and without perfect reset models to IMT 
 %data and performs cross validation. 75% of the data is used for training,
@@ -27,8 +27,11 @@ rng(1);
 %TolFun = 100;
 %TolX = 10;
 
-TolFun = 4;
-TolX = 1;
+%TolFun = 4;
+%TolX = 1;
+
+TolFun = 2;
+TolX = 0.01;
 
 % GO SLOW!
 %TolFun = 1;
@@ -36,6 +39,10 @@ TolX = 1;
 
 %TolFun = 0.1;
 %TolX = 0.0001;
+
+%TolFun = 0.01;
+%TolX   = 0.00001;
+
 
 startIMT_analysis=tic;
 

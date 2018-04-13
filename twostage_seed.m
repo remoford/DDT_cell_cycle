@@ -24,20 +24,37 @@ for i=1:numseeds
     
     mratio = rand(1);
     sratio = rand(1);
-    x0(1) = 1/(C1*mratio);
-    x0(3) = 1/(C1*(1-mratio));
+
     %x0(1) = rand(1);
     %x0(3) = rand(1);
-    
-    %x0
+    %x0(1) = 1/(C1*mratio);
+    %x0(3) = 1/(C1*(1-mratio));
+   
     %(x0(2)^(2/3))*x0(1)
-    x0(2) = rand(1);
-    x0(4) = rand(1);
+    %x0(2) = rand(1);
+    %x0(4) = rand(1);
+    %x0(2) = 1/(sqrt(C2)*sratio);
+    %x0(4) = 1/(sqrt(C2)*(1-sratio));
+    %x0(2) = 1/(7*sratio);
+    %x0(4) = 1/(7*(1-sratio));
+    
+    mean1 = C1*mratio;
+    mean2 = C1*(1-mratio);
+    
+    stddev1 = sqrt(C2)*sratio;
+    stddev2 = sqrt(C2)*(1-sratio);
+    
+    %[x0(1), x0(2), x0(3), x0(4)] = meanstddev_to_ms(mean1, stddev1, mean2, stddev2);
+
+    x0(1)=mean1;
+    x0(2)=stddev1;
+    x0(3)=mean2;
+    x0(4)=stddev2;
     
     fprintf("optimizing seed %d: m1=%f s1=%f m2=%f s2=%f ", i, x0(1),x0(2),x0(3),x0(4));
-    fprintf("ll=%f\n",sum(log(convolv_2invG_adapt_nov(datatrain,x0(1),x0(2),x0(3),x0(4),0.1))));
+    fprintf("ll=%f\n",sum(log(convolv_2invG_adapt_nov_meanstddev(datatrain,x0(1),x0(2),x0(3),x0(4),0.1))));
     
-    f=@(x,m1,s1,m2,s2)convolv_2invG_adapt_nov(x,m1,s1,m2,s2,.01);
+    f=@(x,m1,s1,m2,s2)convolv_2invG_adapt_nov_meanstddev(x,m1,s1,m2,s2,.01);
     myll=@(params)loglikelihood(datatrain, f, 4, params);
     objfun=@(params)penalize(myll, 4, params, [realmin  realmax;realmin  realmax;realmin  realmax;realmin  realmax]);
     
@@ -47,17 +64,23 @@ for i=1:numseeds
     fprintf("optimized: m1=%f s1=%f m2=%f s2=%f ", p(1),p(2),p(3),p(4));
     
     pd(i,:)=p;
-    [l,hp(i),flag(i),E(i)]=convolv_2invG_adapt_nov(datatrain,p(1),p(2),p(3),p(4),.01);
+    [l,hp(i),flag(i),E(i)]=convolv_2invG_adapt_nov_meanstddev(datatrain,p(1),p(2),p(3),p(4),.01);
     l=sum(log(l));
     
     fprintf("ll=%f\n",l);
     
     ld(i)=l;
     
-    m1log(i)=1/p(1);
-    s1log(i)=p(2)/(p(1))^(3/2);
-    m2log(i)=1/p(3);
-    s2log(i)=p(4)/(p(3))^(3/2);
+    
+    
+    
+    %[m1log(i), s1log(i), m2log(i), s2log(i)] = ms_to_meanstddev(p(1),p(2),p(3),p(4));
+    [m1log(i), s1log(i), m2log(i), s2log(i)] = meanstddev_to_ms(p(1),p(2),p(3),p(4));
+    
+    %m1log(i)=1/p(1);
+    %s1log(i)=p(2)/(p(1))^(3/2);
+    %m2log(i)=1/p(3);
+    %s2log(i)=p(4)/(p(3))^(3/2);
     
     %m1log(i)=1/m1log(i);
     %s1log(i)=(s1log(i)^(2/3))*m1log(i);
