@@ -104,7 +104,7 @@ else
     y=onestagepdf2(x,m(1),s(1));
     z=onestagepdf2(x,m(2),s(2));
     
-if sd(1)<=Inf && sd(1)>=.01
+if sd(1)<=.5 && sd(1)>=.01
         
         P=conv_window(t,m(1),s(1),m(2),s(2));
     
@@ -189,7 +189,7 @@ if sd(1)<.01
         end
 end
     % pdf is not very concentrated so compute the convolution directly
-    if sd(1)>=Inf
+    if sd(1)>=.5
         % BEGIN FUNCTION DOTHECONVOLUTION_OUTER
         % Input parameters: E, m, s, Maxt, z, y, h, n, t, i, I, x
         % Outputs: P
