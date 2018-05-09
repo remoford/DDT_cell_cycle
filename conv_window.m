@@ -1,4 +1,4 @@
-function [P] = conv_window(t,m1,s1,m2,s2)
+function [P] = conv_window_old(t,m1,s1,m2,s2)
 %This function convolves a highly concentrated pdf (f) with a less concentrated
 %pdf (g).  It breaks the concentrated pdf as a sum of two pdfs: f=fw+fo, 
 %where fw=f inside the window but is zero elsewhere and fo=f outside the
@@ -6,6 +6,7 @@ function [P] = conv_window(t,m1,s1,m2,s2)
 %convolutions fo*g and fw*g are evaluated using an adaptive method that
 %reduced the grid size, h, used to compute the convolution to ensure the
 %numerical error is small. 
+
 
 %m1 and s1 correspond to the more concentrated distribution
 h=.1;
@@ -38,11 +39,11 @@ w=SSL:hw:SSR;
 %vector of values of highly concentrated pdf over window
 fw=onestagepdf2(w,m1,s1);
 %indicates if an x value is outside of the window
-w_indicator=@(x)((x<SSL) + (x>SSR));
+%w_indicator=@(x)((x<SSL) + (x>SSR));
 %gives vector of vales of highly concentrated pdf outside of window.  
-fo_fun=@(x)onestagepdf2(x,m1,s1).*w_indicator(x);
+%fo_fun=@(x)onestagepdf2(x,m1,s1).*w_indicator(x);
 %vector of values of less concentrated pdf everywhere.
-g=onestagepdf2(x,m2,s2);
+%g=onestagepdf2(x,m2,s2);
 gw=onestagepdf2(xw,m2,s2);
 %vector of vales of highly concentrated pdf outside of window. 
 fo=fo_fun(x);
@@ -63,6 +64,7 @@ for i=1:n
     %probability is approxiated as a value from the vector x.
     
     %number of steps to go back in order to move back .1 time units
+    %because .1 is the size of the data bin FIX ME!!!!!!!
     goback=.1/h;
     if t(i)>0 && I(i)>=10
         %because the data has limited resolution
@@ -132,7 +134,7 @@ I=zeros(n,1);
 % P gives the probability of each observation under the wondowed
 % convolution.
 P=zeros(n,1);
-%gives the index of the first component of xw that is inide the window. 
+%gives the index of the last component of xw that is outside the window. 
 k1=find(xw<SSL,1,'last');
 %number of steps to go back, in order to go back .1 time units
 goback=.1/xw(2);
