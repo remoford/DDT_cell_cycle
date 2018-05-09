@@ -67,11 +67,18 @@ for i=1:length(id)
     %f=@(x,m1,s1,m2,s2)convolv_2invG_adapt2(x,m1,s1,m2,s2,.01,4);
     %[p,conf1]=mle(datatrain,'pdf',f,'start',x0, 'upperbound', [Inf Inf Inf Inf],'lowerbound',[0 0 0 0],'options',options)
 
-
+%%%%%These are the options%%%%%%%%%%%%%%%%%%%
+%set max iter to 1
     fminsearch_options = optimset('TolFun',TolFun, 'TolX', TolX);
     myll=@(params)loglikelihood(datatrain, f, 4, params);
     objfun=@(params)penalize(myll, 4, params, [realmin  realmax;realmin  realmax;realmin  realmax;realmin  realmax]);
+    
+    %make a for loop running the optimizer 10000 times so we can see the traejctory.  
     p=fminsearch(objfun,x0,fminsearch_options);
+    %add line to plot p, set hold on so we can see successive p values
+    %end for loop
+    %save plot with index indicating value of i (which indentifies the
+    %initial data.)
 
     fprintf("optimized: m1=%f s1=%f m2=%f s2=%f\n", p(1),p(2),p(3),p(4));
 
