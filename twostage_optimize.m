@@ -73,10 +73,17 @@ for i=1:length(id)
     myll=@(params)loglikelihood(datatrain, f, 4, params);
     objfun=@(params)penalize(myll, 4, params, [realmin  realmax;realmin  realmax;realmin  realmax;realmin  realmax]);
     
-    %make a for loop running the optimizer 10000 times so we can see the traejctory.  
-    p=fminsearch(objfun,x0,fminsearch_options);
+    %make a for loop running the optimizer 10000 times so we can see the traejctory.
+    for i=1:10000
+        p=fminsearch(objfun,x0,fminsearch_options);
+        
     %add line to plot p, set hold on so we can see successive p values
+    plot(p)
+    hold on
+    
     %end for loop
+    end
+    
     %save plot with index indicating value of i (which indentifies the
     %initial data.)
 
