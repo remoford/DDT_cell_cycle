@@ -75,7 +75,7 @@ for i=1:length(id)
     
     %make a for loop running the optimizer 10000 times so we can see the traejctory.
  figure
-    for iii=1:1
+    for iii=1:100
         [p,fval]=fminsearch(objfun,x0,fminsearch_options);
         displacement=p-x0;
         quiver3(x0(1),x0(2),x0(3),displacement(1),displacement(2),displacement(3))
