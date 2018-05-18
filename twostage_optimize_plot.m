@@ -74,16 +74,22 @@ for i=1:length(id)
     objfun=@(params)penalize(myll, 4, params, [realmin  realmax;realmin  realmax;realmin  realmax;realmin  realmax]);
     
     %make a for loop running the optimizer 10000 times so we can see the traejctory.
-    for i=1:10000
-        p=fminsearch(objfun,x0,fminsearch_options);
+ figure
+    for iii=1:1
+        [p,fval]=fminsearch(objfun,x0,fminsearch_options);
+        displacement=p-x0;
+        quiver3(x0(1),x0(2),x0(3),displacement(1),displacement(2),displacement(3))
         x0=p;
         
-    %add line to plot p, set hold on so we can see successive p values
-    plot(p)
-    hold on
+        %add line to plot p, set hold on so we can see successive p values
+ 
+        %scatter3(p(1),p(2),fval)
+        hold on
     
-    %end for loop
+        %end for loop
     end
+    
+    hold off
     
     %save plot with index indicating value of i (which indentifies the
     %initial data.)
