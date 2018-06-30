@@ -39,9 +39,9 @@ data=imt_b;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %choose model to fit
-twostagefit=0;
+twostagefit=1;
 onestagelag=0;
-onestagefit=1;
+onestagefit=0;
 threestagefit=0;
 emgfit=0;
 twostagelag=0;
@@ -226,6 +226,7 @@ if twostagefit == 1
         m = 1./c1;
         s = (c2./c1.^3).^0.5;
         N = length(vry);
+        
 
         % prepare parameter seeds
         
@@ -260,31 +261,24 @@ if twostagefit == 1
         ld = NaN*ones(length(P),1);
         options = statset('MaxIter',10000, 'MaxFunEvals',10000,'TolFun',1e-3,'TolX',1e-3,'TolTypeFun','rel', 'TolTypeX', 'abs');
         flag=zeros(length(id),1);
+        confint=zeros(2,4,length(id));
         for i=1:length(id)  
             x0 = P(i,:);
             %f=@(x,m1,s1,m2,s2)convolv_2invG_adapt_nov(x,m1,s1,m2,s2,.01);
-            f=@(x,m1,s1,m2,s2)convolv_2invG_adapt_window(x,m1,s1,m2,s2,.01);
+            f=@(x,m1,s1,m2,s2)convolv_2invG_adapt_window(x,m1,s1,m2,s2);
             [p,conf1]=mle(data,'pdf',f,'start',x0, 'upperbound', [Inf Inf Inf Inf],'lowerbound',[0 0 0 0],'options',options)
             pd(i,:)=p;
-            confint(:,:,i)=conf1(:);
+            confint(:,:,i)=conf1;
             %[l,hp(i),flag(i),E(i)]=convolv_2invG_adapt_nov(data,p(1),p(2),p(3),p(4),.01);
-            [l,hp(i),flag(i),E(i)]=convolv_2invG_adapt_window(data,p(1),p(2),p(3),p(4),.01);
+            [l,hp(i),flag(i),E(i)]=convolv_2invG_adapt_window(data,p(1),p(2),p(3),p(4));
             l=sum(log(l));
             ld(i)=l    
 
         end
         
-        % we previously optimized with a larger step size, recalculate with
-        % a smaller stepsize after the fact
-        ld_true=zeros(length(ld),1);
-        for i=1:length(ld)
-            %[l,hp_true(i),flag_true(i),E_true(i)]=convolv_2invG_adapt_nov(data,pd(i,1),pd(i,2),pd(i,3),pd(i,4),.001);
-            [l,hp_true(i),flag_true(i),E_true(i)]=convolv_2invG_adapt_window(data,pd(i,1),pd(i,2),pd(i,3),pd(i,4),.001);
-            ld_true(i)=sum(log(l));
-        end
-
+       
         % common to each fit, consider factoring out
-        [max_ld,row_ld]=max(ld_true);
+        [max_ld,row_ld]=max(ld);
         pd_max = pd(row_ld,:);
         confint_max=confint(:,:,row_ld);
     % END FUNCTION FIT_TWOSTAGE

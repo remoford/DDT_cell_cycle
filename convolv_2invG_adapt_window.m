@@ -12,7 +12,7 @@
 % cell cycle when called by convolv_3invG), m1=mu1, m2=mu2, s1=sigma1,
 % s2=sigma2.
 
-function [P,h,flag,E]=convolv_2invG_adapt_window(t,m1,s1,m2,s2,h)
+function [P,h,flag,E]=convolv_2invG_adapt_window(t,m1,s1,m2,s2)
 h=.1;
 timing_output=0;
 if timing_output == 1
@@ -104,73 +104,16 @@ else
     y=onestagepdf2(x,m(1),s(1));
     z=onestagepdf2(x,m(2),s(2));
     
-if sd(1)<=.5 && sd(1)>=.01
+if sd(1)<=1000 && sd(1)>=0
         
         P=conv_window(t,m(1),s(1),m(2),s(2));
     
     % if the first pdf is very concentrated, check to see if it can be
     % approximated as a point-mass distribution
 end
-if sd(1)<.01
+if sd(1)<0
     
-        % BEGIN FUNCTION TailMass
-        % Input parameters: m, s, eps, T2, nu, sd,
-        % Outputs: check2
-            % to estimate the error (in calculating probabilities the of the
-            % data), that results from approximating the first pdf as a
-            % point-mass distribtion, find the maximum of the absolute value
-            % of the derivative of the second pdf.
-            gp=gp_max(m(2),s(2));
-
-            % determine the radius, r, of a small interval over which the
-            % 1. second pdf, g, is approximately constant, i.e. changes by less than eps/3
-            % over any interval with that radius
-            % and 2. g(t) is small for t<r.  ?????
-            r=min(eps/(3*gp),T2);
-            checkval=onestagepdf2(r,m(2),s(2));
-            while checkval>=eps/2
-                r=r/2;
-                checkval=onestagepdf2(r,m(2),s(2));
-            end
-
-            % get the average value of the first pdf.  This is the point at
-            % which its mass is concentrated.
-            nu=1/m(1);
-
-            % get the maximum value of the second pdf,f.
-            gm=onestagepdf2(T2,m(2),s(2));
-
-            % ????
-            % Tu is the upper limit of integral for approximating
-            % int_{r+nu}^{infty}g(s)ds. This is in latex.
-            Tu=max(100,nu+r+1000*sd(1));
-
-            % ????
-            checkerror=100;
-            hh=.01;
-            numinusr=nu-r;
-            nuplusr=nu+r;
-            teeyou=Tu;
-            %we are integrating the first pdf from zero to nu-r, and from nu+r to infinity to see if the tails
-            %are small in probability.
-            LeftTail=.001*sum(onestagepdf2((0:.001:numinusr),m(1),s(1)));
-            RightTail=.001*sum(onestagepdf2((nuplusr:.001:teeyou),m(1),s(1)));
-            check1=LeftTail+RightTail;
-            %Reduce step size in above Riemann sum until the error is small,
-            %meaning that the Riemann sum is converging.  This bound on the
-            %error ensures the error in the estimate of gm*check1 is on the
-            %order of 10^-3, and hence an order of magnitude lower than the
-            %value at which the approximation is accepted
-            while checkerror>(10^(-3))/gm
-                hh=.5*hh;
-                ck1=hh*sum(onestagepdf2((0:hh:nu-r),m(1),s(1)))+hh*sum(onestagepdf2((nu+r:hh:Tu),m(1),s(1)));
-                checkerror=abs(check1-ck1);
-                check1=ck1;
-                
-            end
-            check2=gm*check1;
-            %     end
-        % END FUNCTION CHECK_APPROXIMATABLE
+     check2 = TailMass(m,s,eps,T2,sd);
         
         if  check2<=eps/3
             %If there is not much probability in the tails of the convolution, we use a Dirac Delta for part 1.
@@ -189,95 +132,42 @@ if sd(1)<.01
         end
 end
     % pdf is not very concentrated so compute the convolution directly
-    if sd(1)>=.5
-        % BEGIN FUNCTION DOTHECONVOLUTION_OUTER
-        % Input parameters: E, m, s, Maxt, z, y, h, n, t, i, I, x
-        % Outputs: P
-            % BEGIN FUNCTION DOTHECONVOLUTION_INNER
-            % Input parameters: z, y, h, n, t, i, I, x
-            % Outputs: logP0
-                % find the discrete convolution of the vectors y and z
-                % the (i-1)th element of v approximates the convolution of the pdfs 
-                % over [.001, x(i)] as a left-hand Riemann sum.
-                C=conv(z,y)*h;
-                N=length(y);
-                % only the first N elements of the convolution are valid
-                C=C(1:N);
-                I=zeros(n,1);
-                P=zeros(n,1);
-                goback=.1/h;
-                for i=1:n
-                %find element of x that is closest to t(i)
-                    [~,I(i)]=min((t(i)-x).^2);
-                    %If t(i)<0 the probability is set to zero, otherwise the
-                    %probability is approxiated as a value from the vector x.
-                    if t(i)>0 && I(i)>1
-                        I_vector=(I(i)-goback+1):1:I(i);
-                        P(i)=sum(C(I_vector))*h;
-
-                    else
-                        P(i)=realmin;
-                    end
-                end
-                %toc
-                P0=max(realmin,P);
-                logP0=sum(log(P0));
-            % END FUNCTION DOTHECONVOLUTION_INNER
+    if sd(1)>=1000
+        
+        P = Conv2(z,y,h,n,t,x);
+        
+        logP=sum(log(P));
+       
+        EB=min(-log(1-.2),log(1+.2));
+        
+        E=EB+1;
+        
+        while E>=EB
             
-            %EB=bound on the error
-            EB=min(-log(1-.2),log(1+.2));
-            h1=.5*h;
-            while E>=EB
+            h=.5*h;
+            
+            logP0=logP;
                 
-                if timing_output == 1
-                    fprintf('h1=%f ',h1);
-                    fprintf('m1=%f s1=%f m2=%f s2=%f h=%f  ',m2,s1,m2,s2,h);
-                end
-                x=0:h1:Maxt;
+            if timing_output == 1
+                fprintf('h1=%f ',h1);
+                fprintf('m1=%f s1=%f m2=%f s2=%f h=%f  ',m2,s1,m2,s2,h);
+            end
+                x=0:h:Maxt;
                 x=x';
                 y=onestagepdf2(x,m(1),s(1));
                 z=onestagepdf2(x,m(2),s(2));
+                
+                P = Conv2(z,y,h,n,t,x);
+                
+                logP=sum(log(P));
 
-                % BEGIN FUNCTION DOTHECONVOLUTION_INNER
-                % Input parameters: z, y, h1, n, t, i, I, x
-                % Outputs: logP1
-                    % find the discrete convolution of the vectors y and z
-                    % the (i-1)th element of v approximates the convolution of the pdfs 
-                    % over [.001, x(i)] as a left-hand Riemann sum.
-                    C=conv(z,y)*h1;
-                    I=2*I-1;
-                    N=length(y);
-                    % only the first N elements of the convolution are valid
-                    C=C(1:N);
-                    P=zeros(n,1);
-                    goback=goback*2;
-                    for i=1:n
-                    %find element of x that is closest to t(i)
-                        [~,I(i)]=min((t(i)-x).^2);
-                        %If t(i)<0 the probability is set to zero, otherwise the
-                        %probability is approximated as a value from the vector x.
-                        if t(i)>0 && I(i)>1
-                            I_vector=(I(i)-goback+1):1:I(i);
-                            P(i)=sum(C(I_vector))*h1;
-                        else
-                            P(i)=realmin;
-                        end
-                    end
-                    %toc
-                    P1=max(realmin,P);
-                    logP1=sum(log(P1));
-                % END FUNCTION DOTHECONVOLUTION_INNER
-
-                E=abs(logP1-logP0);
-                P0=P1;
-                logP0=logP1;
-                h1=.5*h1;
+                E=abs(logP-logP0);
+                
                 if timing_output == 1
                     toc
                 end
-            end
-            P=P0;
-        % BEGIN FUNCTION DOTHECONVOLUTION_OUTER
+        end
+           
     end
 end
 if timing_output == 1
