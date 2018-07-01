@@ -104,14 +104,14 @@ else
     y=onestagepdf2(x,m(1),s(1));
     z=onestagepdf2(x,m(2),s(2));
     
-if sd(1)<=1000 && sd(1)>=0
+if sd(1)<=1000 && sd(1)>=.1
         
         P=conv_window(t,m(1),s(1),m(2),s(2));
     
     % if the first pdf is very concentrated, check to see if it can be
     % approximated as a point-mass distribution
 end
-if sd(1)<0
+if sd(1)<.1
     
      check2 = TailMass(m,s,eps,T2,sd);
         
