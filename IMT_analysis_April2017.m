@@ -146,7 +146,7 @@ if onestagefit == 1
             [p,conf1]=mle(data,'pdf',@onestagepdf_binned_adapt,'start',x0, 'upperbound', [Inf Inf],'lowerbound',[0 0],'options',options)
             pd(i,:)=p;
             confint(:,:,i)=conf1;
-            l=onestagepdf2(data,p(1),p(2));
+            l=onestagepdf_binned_adapt(data,p(1),p(2));
             ld(i)=sum(log(l));
         end
         
