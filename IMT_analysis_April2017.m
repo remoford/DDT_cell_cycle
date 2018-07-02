@@ -1,4 +1,4 @@
-
+clear all
 % This file fits EMG, one-, two-, and three-stage stochasttic models to IMT data.
 
 startIMT_analysis=tic;
@@ -39,9 +39,9 @@ data=imt_b;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %choose model to fit
-twostagefit=1;
+twostagefit=0;
 onestagelag=0;
-onestagefit=0;
+onestagefit=1;
 threestagefit=0;
 emgfit=0;
 twostagelag=0;
@@ -138,13 +138,14 @@ if onestagefit == 1
             P(ii,:) = pp{ii};
         end
         
+        
         % optimize parameters
         for i=1:N^2
             x0 = P(i,:);
             %[p,conf1]=mle(data,'pdf',@onestagepdf2,'start',x0, 'upperbound', [Inf Inf],'lowerbound',[0 0],'options',options)
             [p,conf1]=mle(data,'pdf',@onestagepdf_binned_adapt,'start',x0, 'upperbound', [Inf Inf],'lowerbound',[0 0],'options',options)
             pd(i,:)=p;
-            confint(:,:,i)=conf1(:);
+            confint(:,:,i)=conf1;
             l=onestagepdf2(data,p(1),p(2));
             ld(i)=sum(log(l));
         end

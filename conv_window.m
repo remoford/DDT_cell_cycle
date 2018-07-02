@@ -7,6 +7,9 @@ function [P] = conv_window(t,m1,s1,m2,s2)
 %reduced the grid size, h, used to compute the convolution to ensure the
 %numerical error is small. 
 
+eps=.5;
+%EB=bound on the error
+EB=min(-log(1-eps),log(1+eps));
 
 %m1 and s1 correspond to the more concentrated distribution
 
@@ -27,8 +30,7 @@ P=Conv2_window(SSL,SSR,hw,t,m1,s1,m2,s2);
 
 logP=sum(log(P));
 
-%EB=bound on the error
-EB=min(-log(1-.2),log(1+.2));
+
 
 E=EB+1;
 
