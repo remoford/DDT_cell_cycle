@@ -1,6 +1,7 @@
 function P=onestagepdf_binned(imt,mu,s,h)
                 x=0:h:max(imt);
                 C=onestagepdf2(x,mu,s);
+                
                 n=length(imt);
                 I=zeros(size(C));
                 P=zeros(size(imt));
@@ -21,6 +22,12 @@ function P=onestagepdf_binned(imt,mu,s,h)
                     end
                         
                         P(i)=sum(C(I_vector))*h;
+                        
+                        fprintf("index=%f, left index=%f, right index=%f, IMT=%f, Y=%f\n",i,I(i), I(i)-goback, imt(i),P(i));
+                        
+                        for ii=I_vector(1):I_vector(length(I_vector))
+                        fprintf("ii=%f, x(i)=%f, C(i)=%f\n",ii, x(ii),C(ii));
+                        end
 
                 end
                 %toc

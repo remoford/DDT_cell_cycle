@@ -3,7 +3,7 @@ function Y=onestagepdf_binned_adapt(imt,mu,s)
 eps=.5;
 EB=min(-log(1-eps),log(1+eps));
 
-fprintf("Parameters: mu=%f, sigma=%f",mu, s);
+fprintf("Parameters: mu=%f, sigma=%f\n",mu, s);
 
 h=.01;
 E=EB+1;
@@ -19,6 +19,7 @@ while E>=EB
     LogY0=LogY;
     
     fprintf("gridsize=%f, E=%f, EB=%f, LL=%f\n",h,E, EB, LogY);
+    
     
 end
 %fprintf("gridsize=%f, E=%f, EB=%f, LL=%f\n",h,E, EB, LogY);
