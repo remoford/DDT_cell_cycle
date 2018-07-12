@@ -136,11 +136,13 @@ end
         
         P = Conv2(z,y,h,n,t,x);
         
-        logP=sum(log(P));
-       
-        EB=min(-log(1-.2),log(1+.2));
+        %logP=sum(log(P));
         
+        
+      %This bound corresponds to a 20% error in the likelihood.
+        EB=min(-log(1-.2),log(1+.2));
         E=EB+1;
+        
         
         while E>=EB
             

@@ -1,4 +1,4 @@
-function [pd_max,max_ld]=onestagefit(data)
+function [pd_max,max_ld]=onestagefit(data,TolFun,TolX)
 
 num = length(data);
 C1 = mean(data);
@@ -38,20 +38,25 @@ C3 = sum((data-C1).^3)/(length(data));
         
         
         % optimize parameters
+         fminsearch_options = optimset('TolFun',TolFun, 'TolX', TolX);
         for i=1:N^2
             x0 = P(i,:);
+            f=@onestagepdf_binned_adapt;
+            myll=@(params)loglikelihood(data, f, 2, params);
+            objfun=@(params)penalize(myll, 2, params, [realmin  realmax;realmin  realmax]);
+            p=fminsearch(objfun,x0,fminsearch_options);
             %[p,conf1]=mle(data,'pdf',@onestagepdf2,'start',x0, 'upperbound', [Inf Inf],'lowerbound',[0 0],'options',options)
-            [p,conf1]=mle(data,'pdf',@onestagepdf_binned_adapt,'start',x0, 'upperbound', [Inf Inf],'lowerbound',[0 0],'options',options)
+            %[p,conf1]=mle(data,'pdf',@onestagepdf_binned_adapt,'start',x0, 'upperbound', [Inf Inf],'lowerbound',[0 0],'options',options)
             pd(i,:)=p;
-            confint(:,:,i)=conf1;
+            %confint(:,:,i)=conf1;
             l=onestagepdf_binned_adapt(data,p(1),p(2));
-            ld(i)=sum(log(l));
+            ld(i)=sum(log(l))
         end
         
         % common to each fit, consider factoring out
         [max_ld,ind_ld]=max(ld);
         pd_max=pd(ind_ld,:);
-        confint_max=confint(:,:,ind_ld);
+        %confint_max=confint(:,:,ind_ld);
     % END FUNCTION FIT_ONESTAGE
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 end

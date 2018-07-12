@@ -63,34 +63,20 @@ for i=1:length(id)
 
     fprintf("optimizing seed %d: m1=%f s1=%f m2=%f s2=%f\n", i, x0(1),x0(2),x0(3),x0(4));
 
-    f=@(x,m1,s1,m2,s2)convolv_2invG_adapt_window(x,m1,s1,m2,s2,.01);
+    f=@(x,m1,s1,m2,s2)convolv_2invG_adapt_window(x,m1,s1,m2,s2);
     %f=@(x,m1,s1,m2,s2)convolv_2invG_adapt2(x,m1,s1,m2,s2,.01,4);
     %[p,conf1]=mle(datatrain,'pdf',f,'start',x0, 'upperbound', [Inf Inf Inf Inf],'lowerbound',[0 0 0 0],'options',options)
 
 %%%%%These are the options%%%%%%%%%%%%%%%%%%%
-%set max iter to 1
     fminsearch_options = optimset('TolFun',TolFun, 'TolX', TolX);
     myll=@(params)loglikelihood(datatrain, f, 4, params);
     objfun=@(params)penalize(myll, 4, params, [realmin  realmax;realmin  realmax;realmin  realmax;realmin  realmax]);
+    p=fminsearch(objfun,x0,fminsearch_options);
     
-    %make a for loop running the optimizer 10000 times so we can see the traejctory.
-    for i=1:10000
-        p=fminsearch(objfun,x0,fminsearch_options);
-        
-    %add line to plot p, set hold on so we can see successive p values
-    plot(p)
-    hold on
-    
-    %end for loop
-    end
-    
-    %save plot with index indicating value of i (which indentifies the
-    %initial data.)
-
     fprintf("optimized: m1=%f s1=%f m2=%f s2=%f\n", p(1),p(2),p(3),p(4));
 
     pd(i,:)=p;
-    [l,hp(i),flag(i),E(i)]=convolv_2invG_adapt_window(datatrain,p(1),p(2),p(3),p(4),.01);
+    [l,hp(i),flag(i),E(i)]=convolv_2invG_adapt_window(datatrain,p(1),p(2),p(3),p(4));
     l=sum(log(l));
 
     fprintf("log-liklihood=%f\n",l);
@@ -130,7 +116,7 @@ pd=pd(indnoflag,:);
 pd_max = pd(row_ld,:)
 
 %perform cross validation
-[lcross]=convolv_2invG_adapt_nov(datacross,pd_max(1),pd_max(2),pd_max(3),pd_max(4),.01);
+[lcross]=convolv_2invG_adapt_nov(datacross,pd_max(1),pd_max(2),pd_max(3),pd_max(4));
 lcross=sum(log(lcross));
 
 pd_maxflag=[];
@@ -143,7 +129,7 @@ if isempty(indflag)==0
     pd_maxflag = pdflag(row_ldflag,:)
     
     %perform cross validation
-    [lcrossflag]=convolv_2invG_adapt_nov(datacross,pd_maxflag(1),pd_maxflag(2),pd_maxflag(3),pd_maxflag(4),.01);
+    [lcrossflag]=convolv_2invG_adapt_nov(datacross,pd_maxflag(1),pd_maxflag(2),pd_maxflag(3),pd_maxflag(4));
     lcrossflag=sum(log(lcrossflag));
 end
 

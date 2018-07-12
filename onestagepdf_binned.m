@@ -23,11 +23,11 @@ function P=onestagepdf_binned(imt,mu,s,h)
                         
                         P(i)=sum(C(I_vector))*h;
                         
-                        fprintf("index=%f, left index=%f, right index=%f, IMT=%f, Y=%f\n",i,I(i), I(i)-goback, imt(i),P(i));
+                        %fprintf("index=%f, left index=%f, right index=%f, IMT=%f, Y=%f\n",i,I(i), I(i)-goback, imt(i),P(i));
                         
-                        for ii=I_vector(1):I_vector(length(I_vector))
-                        fprintf("ii=%f, x(i)=%f, C(i)=%f\n",ii, x(ii),C(ii));
-                        end
+%                         for ii=I_vector(1):I_vector(length(I_vector))
+%                         fprintf("ii=%f, x(i)=%f, C(i)=%f\n",ii, x(ii),C(ii));
+%                         end
 
                 end
                 %toc

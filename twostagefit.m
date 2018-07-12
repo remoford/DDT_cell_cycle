@@ -1,4 +1,4 @@
-function [pd_max,max_ld]=twostagefit(data)
+function [pd_max,max_ld]=twostagefit(data,TolFun,TolX)
 
 num = length(data);
 C1 = mean(data);
@@ -57,17 +57,21 @@ C3 = sum((data-C1).^3)/(length(data));
         % optimize parameters
         pd=zeros(length(P),4);
         ld = NaN*ones(length(P),1);
-        options = statset('MaxIter',10000, 'MaxFunEvals',10000,'TolFun',1e-3,'TolX',1e-3,'TolTypeFun','rel', 'TolTypeX', 'abs');
+        %options = statset('MaxIter',10000, 'MaxFunEvals',10000,'TolFun',1e-3,'TolX',1e-3,'TolTypeFun','rel', 'TolTypeX', 'abs');
+        fminsearch_options = optimset('TolFun',TolFun, 'TolX', TolX);
         flag=zeros(length(id),1);
         confint=zeros(2,4,length(id));
         for i=1:length(id)  
             x0 = P(i,:);
             %f=@(x,m1,s1,m2,s2)convolv_2invG_adapt_nov(x,m1,s1,m2,s2,.01);
             f=@(x,m1,s1,m2,s2)convolv_2invG_adapt_window(x,m1,s1,m2,s2);
-            [p,conf1]=mle(data,'pdf',f,'start',x0, 'upperbound', [Inf Inf Inf Inf],'lowerbound',[0 0 0 0],'options',options)
-            pd(i,:)=p;
-            confint(:,:,i)=conf1;
-            %[l,hp(i),flag(i),E(i)]=convolv_2invG_adapt_nov(data,p(1),p(2),p(3),p(4),.01);
+            myll=@(params)loglikelihood(data, f, 4, params);
+            objfun=@(params)penalize(myll, 4, params, [realmin  realmax;realmin  realmax;realmin  realmax;realmin  realmax]);
+            p=fminsearch(objfun,x0,fminsearch_options);
+        
+%             [p,conf1]=mle(data,'pdf',f,'start',x0, 'upperbound', [Inf Inf Inf Inf],'lowerbound',[0 0 0 0],'options',options)
+%             pd(i,:)=p;
+%             confint(:,:,i)=conf1;
             [l,hp(i),flag(i),E(i)]=convolv_2invG_adapt_window(data,p(1),p(2),p(3),p(4));
             l=sum(log(l));
             ld(i)=l    
@@ -78,7 +82,7 @@ C3 = sum((data-C1).^3)/(length(data));
         % common to each fit, consider factoring out
         [max_ld,row_ld]=max(ld);
         pd_max = pd(row_ld,:);
-        confint_max=confint(:,:,row_ld);
+        %confint_max=confint(:,:,row_ld);
     % END FUNCTION FIT_TWOSTAGE
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

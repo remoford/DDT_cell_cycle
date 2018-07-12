@@ -5,6 +5,14 @@ function [pd_max,max_ld]=IMT_analysis_April2017(argstruct)
 %want to fit.
 startIMT_analysis=tic;
 
+% GO FAST!
+%TolFun = 100;
+%TolX = 10;
+
+% GO SLOW!
+TolFun = 1;
+TolX = 0.001;
+
 %This section of code gets the IMT data
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -56,13 +64,13 @@ end
 
 %choose model to fit
 if strcmp(argstruct.model,'two')
-[pd_max,max_ld]=twostagefit(data);
+[pd_max,max_ld]=twostagefit(data,TolFun,TolX);
 end
 if strcmp(argstruct.model,'one_lag')
 [pd_max,max_ld]=onestagelagfit(data);
 end
 if strcmp(argstruct.model,'one')
-[pd_max,max_ld]=onestagefit(data);
+[pd_max,max_ld]=onestagefit(data,TolFun,TolX);
 end
 if strcmp(argstruct.model,'three')
 [pd_max,max_ld]=threestagefit(data);
