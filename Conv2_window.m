@@ -21,17 +21,20 @@ I=zeros(n,1);
 % convolution.
 P=realmin*ones(n,1);
 %%%%%%%%%%%%%%%%%%
-%Note that finding and integrating across the bin of each data point could
-%be its own function.
 
 %gives the index of the last component of xw that is outside the window.
 %the index of the smallest possible intermitotic time.
 k1=find(xw<SSL,1,'last');
 %number of steps to go back, in order to go back .1 time units
-goback=.1/xw(2);
+if length(hw)~=1
+    hw
+end
+goback=.1/hw;
+goback=round(goback);
 for i=1:n
     %find index of element of x that is closest to t(i)
-    [~,I(i)]=min(abs(t(i)-xw));
+    %[~,I(i)]=min(abs(t(i)-xw));
+    I(i)=round(t(i)/hw);
     %If t(i)<=0 the probability of an observation is set to 0.
     %Also if the index of an IMT (I(i)) is less than the first index in the 
     %window, the probability of an observation is 0.
@@ -48,6 +51,11 @@ for i=1:n
             I_vector=I_vector(I_vector>0);
             
         end
+        is_int=round(I_vector)-I_vector;
+        if sum(is_int)~=0
+            I_vector
+        end
+            
         P(i)=sum(C(I_vector))*hw;
     
     end

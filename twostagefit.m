@@ -70,7 +70,7 @@ C3 = sum((data-C1).^3)/(length(data));
             p=fminsearch(objfun,x0,fminsearch_options);
         
 %             [p,conf1]=mle(data,'pdf',f,'start',x0, 'upperbound', [Inf Inf Inf Inf],'lowerbound',[0 0 0 0],'options',options)
-%             pd(i,:)=p;
+            pd(i,:)=p
 %             confint(:,:,i)=conf1;
             [l,hp(i),flag(i),E(i)]=convolv_2invG_adapt_window(data,p(1),p(2),p(3),p(4));
             l=sum(log(l));

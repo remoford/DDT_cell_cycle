@@ -10,8 +10,8 @@ argstruct.data='dmso';
 %argstruct.data='mcf';
 %argstruct.data='at1';
 
-argstruct.model='one';
-%argstruct.model='two';
+%argstruct.model='one';
+argstruct.model='two';
 %argstruct.model='three';
 %argstruct.model='emg';
 %argstruct.model='one_lag';

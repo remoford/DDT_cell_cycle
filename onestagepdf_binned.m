@@ -7,6 +7,7 @@ function P=onestagepdf_binned(imt,mu,s,h)
                 P=zeros(size(imt));
 
                 goback=.1/h;
+                goback=round(goback);
                 
                 for i=1:n
                 %find element of x that is closest to t(i)

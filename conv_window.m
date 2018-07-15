@@ -13,19 +13,37 @@ EB=min(-log(1-eps),log(1+eps));
 
 %m1 and s1 correspond to the more concentrated distribution
 
-x_fine=0:.01:max(t);
+%x_fine=0:.01:max(t);
 %SS is size of window.  Needs to be determined.
 %SS=pickthewindow(m1,s1);
 %full vector of values of f.
-ff=onestagepdf2(x_fine,m1,s1);
-SSL=find(ff>realmin,1,'first');
-SSR=find(ff>realmin,1,'last');
-SSL=x_fine(SSL);
-SSR=x_fine(SSR);
+%ff=onestagepdf2(x_fine,m1,s1);
+T1=(1/m1)*((1+(9/4)*(s1^4/m1^2))^.5-(3/2)*(s1^2/m1));
+ff=@(x)(onestagepdf2(x,m1,s1)-realmin);
+SSL=bisect(ff,0,T1);
+if SSL>=max(t)
+    P=realmin*ones(1,length(data));
+else
+    if max(t)<T1
+        SSR=max(t);
+    else
+    SSR=bisect(ff,max(t),T1);
+    if isnan(SSR)==1
+        SSR=max(t);
+    end
+    end
+
+        
+% SSL=find(ff>realmin,1,'first');
+% SSR=find(ff>realmin,1,'last');
+% SSL=x_fine(SSL);
+% SSR=x_fine(SSR);
 %grid size for convolving against f over the window;
 hw=(SSR-SSL);
 hw=min(hw,.1);
-
+    if length(hw)~=1
+    hw
+    end
 P=Conv2_window(SSL,SSR,hw,t,m1,s1,m2,s2);
 
 logP=sum(log(P));
@@ -34,7 +52,7 @@ logP=sum(log(P));
 
 E=EB+1;
 
-while E>=EB
+    while E>=EB
     
     hw=hw*.5;
     
@@ -46,6 +64,7 @@ while E>=EB
  
     E=abs(logP-logP0);
     
+    end
 end
 
 end
