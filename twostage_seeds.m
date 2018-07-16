@@ -1,4 +1,4 @@
-function [P]=twostage_seeds(C1,C2,N)
+function [P]=twostage_seeds(C1,C2)
 
 %C1 is the mean of the data
 %C2 is the variance of the data
@@ -11,20 +11,20 @@ function [P]=twostage_seeds(C1,C2,N)
 %moments, respectively.  
 
         % proportions of moments represented by the first part
-        vry1 = [.01 .5]';
+        vry1 = [.1 .5 1.25]';
     
         % proportions of moments represented by the second part
-        vry2 = 1-vry1;
+        vry2 = abs(1-vry1);
         
-        c1 = C1*vry;
-        c2 = C2*vry;
+        c1 = C1*vry1;
+        c2 = C2*vry1;
         c1_comp=C1*vry2;
         c2_comp=C2*vry2;
         m1 = 1./c1;
         m2= 1./c1_comp;
         s1 = (c2./c1.^3).^0.5;
         s2 = (c2_comp./c1_comp.^3).^0.5;
-        N = length(vry);
+        N = length(vry1);
         
         P=zeros(N^2,4);
         
