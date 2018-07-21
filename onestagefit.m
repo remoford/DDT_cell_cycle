@@ -41,7 +41,7 @@ C3 = sum((data-C1).^3)/(length(data));
          fminsearch_options = optimset('TolFun',TolFun, 'TolX', TolX);
         for i=1:N^2
             x0 = P(i,:);
-            f=@onestagepdf_binned_adapt;
+            f=@(x,m1,s2)onestagepdf_binned_adapt(x,m1,s2,.1);
             myll=@(params)loglikelihood(data, f, 2, params);
             objfun=@(params)penalize(myll, 2, params, [realmin  realmax;realmin  realmax]);
             p=fminsearch(objfun,x0,fminsearch_options);
@@ -49,7 +49,7 @@ C3 = sum((data-C1).^3)/(length(data));
             %[p,conf1]=mle(data,'pdf',@onestagepdf_binned_adapt,'start',x0, 'upperbound', [Inf Inf],'lowerbound',[0 0],'options',options)
             pd(i,:)=p;
             %confint(:,:,i)=conf1;
-            l=onestagepdf_binned_adapt(data,p(1),p(2));
+            l=onestagepdf_binned_adapt(data,p(1),p(2),.1);
             ld(i)=sum(log(l))
         end
         

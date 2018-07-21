@@ -17,3 +17,6 @@ argstruct.model='two';
 %argstruct.model='one_lag';
 %argstruct.model='two_lag';
 %argstruct.model='no_reset';
+
+%argstruct.bin='yes';
+argstruct.bin='no';

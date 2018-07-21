@@ -1,9 +1,9 @@
-function Y=onestagepdf_binned_adapt(imt,mu,s)
+function Y=onestagepdf_binned_adapt(imt,mu,s,h0)
 %EB=bound on the error
+h=h0;
 eps=.5;
 EB=min(-log(1-eps),log(1+eps));
 
-h=.1;
 E=EB+1;
 Y0=onestagepdf_binned(imt,mu,s,h);
 LogY0=sum(log(Y0));

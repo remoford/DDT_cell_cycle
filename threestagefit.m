@@ -1,9 +1,9 @@
 function [pd_max,max_ld]=threestagefit(data)
 
-num = length(data);
+%num = length(data);
 C1 = mean(data);
 C2 = var(data);
-C3 = sum((data-C1).^3)/(length(data));
+%C3 = sum((data-C1).^3)/(length(data));
 
 %Fit three-stage model
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -15,7 +15,6 @@ C3 = sum((data-C1).^3)/(length(data));
         c2 = C2*vry;
         m = 1./c1;
         s = (c2./c1.^3).^0.5;
-        N = length(vry);
         
         % prepare parameter seeds
         pcomb = allcomb(m,s);
@@ -34,30 +33,24 @@ C3 = sum((data-C1).^3)/(length(data));
         % optimize parameters
         pd=zeros(length(P),6);
         ld = NaN*ones(length(P),1);
-        flag=zeros(length(P),1);
-        options = statset('MaxIter',10000, 'MaxFunEvals',10000,'TolFun',1e-3,'TolX',1e-3,'TolTypeFun','rel', 'TolTypeX', 'abs');
+        fminsearch_options = optimset('TolFun',TolFun, 'TolX', TolX);
+        %options = statset('MaxIter',10000, 'MaxFunEvals',10000,'TolFun',1e-3,'TolX',1e-3,'TolTypeFun','rel', 'TolTypeX', 'abs');
         for i=1:length(P)
             x0=P(i,:);
-            g=@(x,m1,s1,m2,s2,m3,s3)convolv_3invG_nov(x,m1,s1,m2,s2,m3,s3,.01);
-            [p,conf1]=mle(data,'pdf',g,'start',x0, 'upperbound', [Inf Inf Inf Inf Inf Inf],'lowerbound',[0 0 0 0 0 0],'options',options)
+            f=@(x,m1,s1,m2,s2,m3,s3)convolv_3invG_adapt_window(t,m1,s1,m2,s2,m3,s3);
+            myll=@(params)loglikelihood(data, f, 4, params);
+            objfun=@(params)penalize(myll, 6, params, [realmin  realmax;realmin  realmax;realmin  realmax;realmin  realmax;realmin  realmax;realmin  realmax]);
+            p=fminsearch(objfun,x0,fminsearch_options);
             pd(i,:)=p;
-            confint(:,:,i)=conf1(:);
-            [l,hp(i),flag(i),E(i)]=convolv_3invG_nov(data,p(1),p(2),p(3),p(4),p(5),p(6),.01);
+            [l,hp(i)]=convolv_3invG_adapt_window(t,m1,s1,m2,s2,m3,s3);
             l=sum(log(l));
             ld(i)=l
-        end
-
-        % we previously optimized with a larger step size, recalculate with
-        % a smaller stepsize after the fact
-        for i=1:length(ld)
-            [l,hp_true(i),flag_true(i),E_true(i)]=convolv_3invG_nov(data,pd(i,1),pd(i,2),pd(i,3),pd(i,4),pd(i,5),pd(i,6),.001);
-            ld_true(i)=sum(log(l));
         end
 
         % common to each fit, consider factoring out
         [max_ld,row_ld]=max(ld_true);
         pd_max = pd(row_ld,:);
-        confint_max=confint(:,:,row_ld);
+        
     % END FUNCTION FIT_THREESTAGE
 
 end

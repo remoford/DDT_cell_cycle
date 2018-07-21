@@ -12,8 +12,8 @@
 % cell cycle when called by convolv_3invG), m1=mu1, m2=mu2, s1=sigma1,
 % s2=sigma2.
 
-function [P,h,flag,E]=convolv_2invG_adapt_window(t,m1,s1,m2,s2)
-h=.1;
+function [P,h,flag,E]=convolv_2invG_adapt_window(t,m1,s1,m2,s2,bin,h0)
+h=h0;
 timing_output=0;
 if timing_output == 1
     tic
@@ -104,14 +104,16 @@ else
     y=onestagepdf2(x,m(1),s(1));
     z=onestagepdf2(x,m(2),s(2));
     
-if sd(1)<=1000 && sd(1)>=0
+if sd(1)<=1000 && sd(1)>=.05
+    
+    sd(1)
         
-        P=conv_window(t,m(1),s(1),m(2),s(2));
+        P=conv_window(t,m(1),s(1),m(2),s(2),bin,h0);
     
     % if the first pdf is very concentrated, check to see if it can be
     % approximated as a point-mass distribution
 end
-if sd(1)<0
+if sd(1)<.05
     
      check2 = TailMass(m,s,eps,T2,sd);
         
@@ -123,12 +125,17 @@ if sd(1)<0
             mu=m(2);
             %l for lag.
             l=1/m(1);
+            if strcmp(bin,'no')
             P=onestagepdf_lag(t,mu,sigma,l);
+            end
+            if strcmp(bin,'yes')
+            P=onestagepdf_binned_adapt(t-l,mu,sigma,h0);
+            end
             
             %Error in the approximation is may be too large, compute the
             %full convolution using the window.
         else
-            P=conv_window(t,m(1),s(1),m(2),s(2));
+            P=conv_window(t,m(1),s(1),m(2),s(2),bin,h0);
         end
 end
     % pdf is not very concentrated so compute the convolution directly

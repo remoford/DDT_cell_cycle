@@ -1,15 +1,10 @@
-function P=Conv2_window(SSL,SSR,hw,t,m1,s1,m2,s2)
+function P=Conv2_window(t,hw,k1,fw,gw,bin)
+%computes the convolution of the vectors fw and gw.  In case k1 is nonzero 
+%k1 initial values in fw are not passed.  To compenstate for this,
+%C(i) approximates the colvolution of fw and gw at x(i-k1), where
+%x=0:hw:max(t).  Note that the convolution evaluated at x<x(k1) is zero.    
+
 n=length(t);
-xw=0:hw:max(t);
-%location of mode of concentrated distribution
-%T1=(1/m1)*((1+(9/4)*(s1^4/m1^2))^.5-(3/2)*(s1^2/m1));
-%window over which the first pdf is highly concentrated
-w=SSL:hw:SSR;
-%vector of values of highly concentrated pdf over window
-fw=onestagepdf2(w,m1,s1);
-
-gw=onestagepdf2(xw,m2,s2);
-
 
 %Compute fw*g %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%              
 C=conv(fw,gw)*hw;
@@ -22,13 +17,10 @@ I=zeros(n,1);
 P=realmin*ones(n,1);
 %%%%%%%%%%%%%%%%%%
 
-%gives the index of the last component of xw that is outside the window.
-%the index of the smallest possible intermitotic time.
-k1=find(xw<SSL,1,'last');
+
 %number of steps to go back, in order to go back .1 time units
-if length(hw)~=1
-    hw
-end
+
+if strcmp(bin,'yes')
 goback=.1/hw;
 goback=round(goback);
 for i=1:n
@@ -51,14 +43,22 @@ for i=1:n
             I_vector=I_vector(I_vector>0);
             
         end
-        is_int=round(I_vector)-I_vector;
-        if sum(is_int)~=0
-            I_vector
-        end
             
         P(i)=sum(C(I_vector))*hw;
     
     end
 %toc
 end
+end
+if strcmp(bin,'no')
+    for i=1:n
+        I(i)=round(t(i)/hw);
+    %find index of element of x that is closest to t(i)
+        if t(i)>0 && I(i)>k1
+    
+            P(i)=C(I(i)-k1);
+        end
+    end
+end
+
 end

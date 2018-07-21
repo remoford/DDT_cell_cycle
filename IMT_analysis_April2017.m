@@ -10,7 +10,7 @@ startIMT_analysis=tic;
 %TolX = 10;
 
 % GO SLOW!
-TolFun = .5;
+TolFun = .1;
 TolX = 0.001;
 
 %This section of code gets the IMT data
@@ -64,7 +64,7 @@ end
 
 %choose model to fit
 if strcmp(argstruct.model,'two')
-[pd_max,max_ld]=twostagefit(data,TolFun,TolX);
+[pd_max,max_ld]=twostagefit(data,TolFun,TolX,argstruct.bin);
 end
 if strcmp(argstruct.model,'one_lag')
 [pd_max,max_ld]=onestagelagfit(data);
@@ -73,7 +73,7 @@ if strcmp(argstruct.model,'one')
 [pd_max,max_ld]=onestagefit(data,TolFun,TolX);
 end
 if strcmp(argstruct.model,'three')
-[pd_max,max_ld]=threestagefit(data);
+[pd_max,max_ld]=threestagefit(data,TolFun,TolX,argstruct.bin);
 end
 if strcmp(argstruct.model,'emg')
 [pd_max,max_ld]=emgfit(data);
