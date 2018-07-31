@@ -1,4 +1,4 @@
-function R=bisect(f,a,b)
+function R=bisect(f,a,b,value)
 %This code finds a point at which f is greater than real min;
 %x0 is a vector containing two initial points at which f is evaluated.
 %it is assumed that f(a)<0 and f(b)>0;
@@ -6,18 +6,18 @@ function R=bisect(f,a,b)
 %which f>realmin.
 eps_x=1;
 
-if f(a)>0
+if f(a)>value
     R=NaN;
 else
 
 while eps_x>10^(-10)
     c=(b+a)/2;
  
-    if f(c)>realmin
+    if f(c)>value
     b=c;
     
     end
-    if f(c)<=realmin
+    if f(c)<=value
     a=c;
     
     end

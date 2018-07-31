@@ -12,7 +12,7 @@
 % cell cycle when called by convolv_3invG), m1=mu1, m2=mu2, s1=sigma1,
 % s2=sigma2.
 
-function [P,h,flag,E,C]=convolv_2invG_adapt_window(t,m1,s1,m2,s2,bin,h0,EType)
+function [P,h,flag,E,C]=convolv_2invG_Dirac_option(t,m1,s1,m2,s2,bin,h0,EType)
 h=h0;
 timing_output=0;
 if timing_output == 1
@@ -79,9 +79,9 @@ s=s(I);
 %T1=(1/m(1))*((1+(9/4)*(s(1)^4/m(1)^2))^.5-(3/2)*(s(1)^2/m(1)));
 T2=(1/m(2))*((1+(9/4)*(s(2)^4/m(2)^2))^.5-(3/2)*(s(2)^2/m(2)));
 
-%When called from convolv_3invG all of the components of t may be negative.
+%When called from convolv_3invG some of the components of t may be negative.
 %In this case, the probability of each is set to realmin
-if max(t)<=0
+if min(t)<=0
     P=realmin.*ones(size(t));
     C=NaN;
     P=reshape(P,length(P),1);
@@ -106,7 +106,7 @@ else
     
 if sd(1)>=.001
         
-        [P,h,C,E]=conv_window(t,m(1),s(1),m(2),s(2),bin,h0,EType);
+        [P,h,C,E]=convolv_2invG(t,m(1),s(1),m(2),s(2),bin,h0,EType);
     
     % if the first pdf is very concentrated, check to see if it can be
     % approximated as a point-mass distribution
@@ -135,7 +135,7 @@ if sd(1)<.001
             %Error in the approximation is may be too large, compute the
             %full convolution using the window.
         else
-            [P,h,C,E]=conv_window(t,m(1),s(1),m(2),s(2),bin,h0,EType);
+            [P,h,C,E]=convolv_2invG(t,m(1),s(1),m(2),s(2),bin,h0,EType);
         end
 end
    

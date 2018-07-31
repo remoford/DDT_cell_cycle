@@ -85,7 +85,7 @@ if strcmp(argstruct.model,'noreset')
 [pd_max,max_ld]=twostagefitnoresetfit(data);
 end
 
-fprintf("Total runtime:\n")
+%fprintf("Total runtime:\n")
 toc(startIMT_analysis)
 
 end

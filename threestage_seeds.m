@@ -12,28 +12,33 @@ function [P]=threestage_seeds(C1,C2)
 
     
         % proportions of moments represented by the first part
-        vry1 = [.01 .5];
+        vry1 = [.1 .2 .3 .4 .5];
+        vry2 = [.1 .5];
         % proportions of moments represented by the remaining parts
-        vry2 = 1-vry1;
+        portion = abs(1-vry1);
         
-        c1 = C1*vry;
-        c2 = C2*vry;
-        c1_comp=C1*vry2;
-        c2_comp=C2*vry2;
+        c1 = C1*vry1;
+        c2 = C2*vry1;
+        
+        c1_comp=C1*portion;
+        c2_comp=C2*portion;
+        
         m1 = 1./c1;
-        m2= 1./c1_comp;
+        s1 = (c2./c1.^3).^0.5;
+        
         
 %We assume the 2 stage code tries the same number of values as this code
 %for each parameter.
-        N = length(vry);
+        N1 = length(vry1);
+        N2 = length(vry2);
         
-        P=zeros(N^4,6);
+        P=zeros((N1^2)*(N2^2),6);
         
-        for i=1:N
-            for j=1:N
-            [P2]=twostage_seeds(c1_comp(i),c2_comp(j));
-            for k=1:N^2
-            P(N*(i-1)+j+k,:)=[m1(i),s1(j),P2(k,1),P2(k,2),P2(k,3),P2(k,4)];
+        for i=1:N1
+            for j=1:N1
+            [P2]=twostage_seeds(c1_comp(i),c2_comp(j),vry2);
+            for k=1:N2^2
+            P((N^3)*(i-1)+(N^2)*(j-1)+k,:)=[m1(i),s1(j),P2(k,1),P2(k,2),P2(k,3),P2(k,4)];
             end
             end
         end

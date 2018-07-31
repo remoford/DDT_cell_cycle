@@ -20,7 +20,7 @@ switch numParams
     case 6
         probabilities = pdf(data,params(1), params(2), params(3), params(4), params(5), params(6));
     otherwise
-        fprintf("ERROR: unspported number of arguments\n");
+        %fprintf("ERROR: unspported number of arguments\n");
 end
 for i=1:numData
     sum = sum + log(probabilities(i));
