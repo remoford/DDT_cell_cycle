@@ -6,77 +6,88 @@ function [P,C,E,h]=conv_adapt(t,f1,f2,LL1,LL2,RL1,RL2,h0,EType,bin)
 
 %EB=bound on the error
 
-E=0;
+maxt=max(t);
+
 
 if strcmp(EType,'relLL')
 %Determines bound of error in relative LL, smaller = less error.
 eps=.5;
 EB=min(-log(1-eps),log(1+eps));
+%also the integral error should be small
+EB2=10^(-2);
+E=EB+1;
+E2=EB2+1;
 end
 
 if strcmp(EType,'abspdf')
 EB=10^(-2);
+EB2=0;
+E=EB+1;
+E2=-1;
 end
 
 if strcmp(EType,'none')
 EB=0;
+EB2=0;
+E=-1;
+E2=-1;
 end
 
 if strcmp(EType,'integral')
 EB=10^(-6);
+EB2=0;
+E=EB+1;
+E2=-1;
 end
 
-xw=LL2:h0:round(RL2/h0)*h0;
+%vector spanning the support of both pdfs.
+xw=0:h0:round(maxt/h0)*h0;
+N=length(xw);
 
-%gives the index of the last component of xw that is outside the support of f2.
+%gives the index of the last component of xw that is outside the support of f1.
+k1=find(xw<=LL1,1,'last');
+k2=find(xw<=LL2,1,'last');
+w1=xw(k1):h0:round(RL1/h0)*h0;
+w2=xw(k2):h0:round(RL2/h0)*h0;
 
-k1=find(xw<LL1,1,'last');
-w=xw(k1+1):h0:round(RL1/h0)*h0;
 
-%begin function conv_adapt
-%inputs: f1 f1: functions to be convolved
-%        LL1, RL1: left and right limits of support of f1
-%       LL2, RL2: left and right limits of support of f2
-%       h0=initial mess for convolution
-%       EType: error type
-%       We assume the LL1>=LL2 and the answer is normalized to LL2.
-%
+f1vector=f1(w1);
 
-f1vector=f1(w);
-
-f2vector=f2(xw);
-
-if length(f1vector)>length(f2vector)
-        length(f1vector)
-end
+f2vector=f2(w2);
 
 
     
-[P,C]=Conv2_shifted(t,h0,k1,f1vector,f2vector,bin);
-
-%Only adapt if there is a bound on the error
-if strcmp(EType,'none')==0
-E=EB+1;
-end
+[P,C]=Conv2_shifted(t,h0,k1+k2-1,N,f1vector,f2vector,bin);
 
 h=h0;
-    while E>EB
+    while E>EB || E2>EB2
     
     h=h*.5;
     
-    xw=LL2:h:round(RL2/h)*h;
-    k1=find(xw<LL1,1,'last');
-    w=xw(k1+1):h:round(RL1/h)*h;
-    
-    f1vector=f1(w);
+    xw=0:h:round(maxt/h)*h;
+    N=length(xw);
 
-    f2vector=f2(xw);
+    %xw(k1) is guaranteed to be just outside the support of f2, provided
+    %the mesh size is >>10^(-10).
+
+    k1=find(xw<=LL1,1,'last');
+    k2=find(xw<=LL2,1,'last');
+    w1=xw(k1):h:round(RL1/h)*h;
+    w2=xw(k2):h:round(RL2/h)*h;
+
+
+    f1vector=f1(w1);
+
+    f2vector=f2(w2);
     
     P0=P;
+    C0=C;
     
-    [P,C]=Conv2_shifted(t,h,k1,f1vector,f2vector,bin);
+    [P,C]=Conv2_shifted(t,h,k1+k2,N,f1vector,f2vector,bin);
+    %P gives the convolution at the data point, C gives the convolution on
+    %the grid.
  
-    [E,problem_P]=ComputeError(P0,P,EType,EB,h0);
+    [E,E2,problem_P]=ComputeError(P0,P,EType,EB,h0,C,C0);
     
     if h<10^(-4)
         h

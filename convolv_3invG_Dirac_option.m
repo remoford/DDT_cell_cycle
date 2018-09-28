@@ -9,9 +9,6 @@ if timing_output == 1
 end
 
 flag=0;
-n=length(t);
-Maxt=max(t);
-x=0:h0:Maxt;
 E=Inf;
 eps=.01;
 
@@ -25,7 +22,7 @@ sd=v.^.5;
 m=m(I);
 s=s(I); 
 
-if sd(1)<.001
+if sd(1)<0
     
     check2 = TailMass2(m,s,eps,sd);
     

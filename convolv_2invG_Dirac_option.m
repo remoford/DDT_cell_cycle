@@ -81,7 +81,7 @@ T2=(1/m(2))*((1+(9/4)*(s(2)^4/m(2)^2))^.5-(3/2)*(s(2)^2/m(2)));
 
 %When called from convolv_3invG some of the components of t may be negative.
 %In this case, the probability of each is set to realmin
-if min(t)<=0
+if min(t)<0
     P=realmin.*ones(size(t));
     C=NaN;
     P=reshape(P,length(P),1);
@@ -89,8 +89,6 @@ if min(t)<=0
     
 % otherwise we need to calculate P for each point in t
 else
-    % find the largest point in t
-    Maxt=max(t);
    
     % produce a range of evenly spaced points to evaluate at between
     % 0 and Maxt with step size h. the even spacing is important when
@@ -104,14 +102,14 @@ else
 %     y=onestagepdf2(x,m(1),s(1));
 %     z=onestagepdf2(x,m(2),s(2));
     
-if sd(1)>=.001
+if sd(1)>=0
         
         [P,h,C,E]=convolv_2invG(t,m(1),s(1),m(2),s(2),bin,h0,EType);
     
     % if the first pdf is very concentrated, check to see if it can be
     % approximated as a point-mass distribution
 end
-if sd(1)<.001
+if sd(1)<0
     
      check2 = TailMass(m,s,eps,T2,sd);
         

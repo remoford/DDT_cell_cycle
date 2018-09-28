@@ -54,9 +54,7 @@ C2 = var(data);
 %             P(ii,:) = [pcell{id(ii,1)},pcell{id(ii,2)}];
 %         end
 
-        vry=[.1 .2 .3 .4 .5]
-
-        [P]=twostage_seeds(C1,C2,vry)
+        [P]=twostage_seeds(C1,C2,'coarse')
         % optimize parameters
         pd=zeros(length(P(:,1)),4);
         ld = NaN*ones(length(P),1);

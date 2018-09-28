@@ -1,4 +1,4 @@
-function [E,problem_P]=ComputeError(P0,P,EType,EB,h)
+function [E,E2,problem_P]=ComputeError(P0,P,EType,EB,h,C,C0)
 %P0 and P are vectors that give approximation of a pdf at data points.
 %If EType=relLL E is the relative error in the likelihood of the
 %data
@@ -21,6 +21,12 @@ logP0=sum(log(P0));
         E=abs(logP-logP0);
         end
     end
+    %require the integral of the pdf to converge as well
+    if C(length(C))==0 && max(C)~=0
+    E2=abs(1-sum(C)*h);
+    else
+    E2=abs((sum(C)*h)-(sum(C0)*2*h));
+    end
 end
 
 if strcmp(EType,'abspdf')
@@ -34,6 +40,7 @@ if strcmp(EType,'abspdf')
     if E>0
         E=EB+1;
     end
+    E2=0;
 end
 
 if strcmp(EType,'integral')
@@ -43,6 +50,8 @@ if strcmp(EType,'integral')
     else
     E=abs((sum(P)*h)-(sum(P0)*h));
     end
+    
+    E2=0;
 end
 end
 

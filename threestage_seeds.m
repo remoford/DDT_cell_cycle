@@ -1,4 +1,4 @@
-function [P]=threestage_seeds(C1,C2)
+function [P]=threestage_seeds(C1,C2,vry)
 
 %C1 is the mean of the data
 %C2 is the variance of the data
@@ -12,8 +12,13 @@ function [P]=threestage_seeds(C1,C2)
 
     
         % proportions of moments represented by the first part
-        vry1 = [.1 .2 .3 .4 .5];
-        vry2 = [.1 .5];
+        if strcmp(vry,'fine')
+            vry1 = [.1 .2 .3 .4 .5];
+        end
+        if strcmp(vry,'coarse')
+            vry1 = [.1 .5 1.25];
+        end
+            
         % proportions of moments represented by the remaining parts
         portion = abs(1-vry1);
         
@@ -30,15 +35,15 @@ function [P]=threestage_seeds(C1,C2)
 %We assume the 2 stage code tries the same number of values as this code
 %for each parameter.
         N1 = length(vry1);
-        N2 = length(vry2);
+        N2 = N1;
         
         P=zeros((N1^2)*(N2^2),6);
         
         for i=1:N1
             for j=1:N1
-            [P2]=twostage_seeds(c1_comp(i),c2_comp(j),vry2);
+            [P2]=twostage_seeds(c1_comp(i),c2_comp(j),vry);
             for k=1:N2^2
-            P((N^3)*(i-1)+(N^2)*(j-1)+k,:)=[m1(i),s1(j),P2(k,1),P2(k,2),P2(k,3),P2(k,4)];
+            P((N1*N2^2)*(i-1)+(N2^2)*(j-1)+k,:)=[m1(i),s1(j),P2(k,1),P2(k,2),P2(k,3),P2(k,4)];
             end
             end
         end

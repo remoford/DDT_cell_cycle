@@ -12,17 +12,23 @@ function [P,hw,C,E] = convolv_2invG(t,m1,s1,m2,s2,bin,h0,EType)
 
 %find the left and right limits of the window over which the pdf is
 %concentrated.
-LL2=0;
-RL2=max(t);
+%LL2=0;
+%RL2=max(t);
+[LL2,RL2]=window(m2,s2,max(t));
+
+if LL2>=max(t)
+    P=realmin*ones(1,length(t));
+else   
 [LL1,RL1]=window(m1,s1,max(t));
 
 if LL1>=max(t)
-    P=realmin*ones(1,length(data));
+    P=realmin*ones(1,length(t));
 else       
 
 %grid size for convolving against f over the window;
-hw=(RL1-LL1)/10;
-hw=min(hw,h0);
+hw1=(RL1-LL1)/10;
+hw2=(RL2-LL2)/10;
+hw=min(hw1,min(hw2,h0));
 
 % xw=linspace(0,max(t),round(max(t)/hw)+1);
 % hw=xw(2)-xw(1);
@@ -37,5 +43,6 @@ f1=@(x)onestagepdf2(x,m1,s1);
 f2=@(x)onestagepdf2(x,m2,s2);
 
 [P,C,E]=conv_adapt(t,f1,f2,LL1,LL2,RL1,RL2,hw,EType,bin);
+end
 end
 

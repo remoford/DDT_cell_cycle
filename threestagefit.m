@@ -8,7 +8,7 @@ C2 = var(data);
 %Fit three-stage model
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % BEGIN FUNCTION FIT_THREESTAGE
-    [P]=threestage_seeds(C1,C2)
+    [P]=threestage_seeds(C1,C2,'coarse')
 
         % optimize parameters
         pd=zeros(length(P),6);
