@@ -37,14 +37,19 @@ if sd(1)<0
         flag=flag+flag1;
     
     else
-    
+    %The next line will return the convolution of the inverse Gaussians
+    %with parameters 4-7, with the inverse Gaussian with parameters 2-3.
+    %We think it will be faster to first convolve the most concentrated
+    %distributions and then take the convolution of that with the remaining
+    %distribution.  This way the most concentrated distribution is only
+    %required to meet the integral error threshold.  
         [P,h,~,E] = convolv_3invG(t,m(1),s(1),m(2),s(2),m(3),s(3),bin,h0,'relLL');
     end
         
 %otherwise, perform the convolution
 
 else
-    [P,h,~,E] = convolv_3invG(t,m(1),s(1),m(2),s(2),m(3),s(3),bin,h0,'relLL');
+    [P,h,~,E] = convolv_3invG(t,m(3),s(3),m(1),s(1),m(2),s(2),bin,h0,'relLL');
     
 
 end

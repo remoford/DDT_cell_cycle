@@ -42,7 +42,7 @@ hw=.1/(2^kk);
 f1=@(x)onestagepdf2(x,m1,s1);
 f2=@(x)onestagepdf2(x,m2,s2);
 
-[P,C,E]=conv_adapt(t,f1,f2,LL1,LL2,RL1,RL2,hw,EType,bin);
+[P,C,E,hw]=conv_adapt(t,f1,f2,LL1,LL2,RL1,RL2,hw,EType,bin);
 end
 end
 

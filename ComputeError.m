@@ -45,10 +45,10 @@ end
 
 if strcmp(EType,'integral')
     
-    if P(length(P))==0 && max(P)~=0
-    E=abs(1-sum(P)*h);
+    if C(length(C))==0 && max(C)~=0
+    E=abs(1-sum(C)*h);
     else
-    E=abs((sum(P)*h)-(sum(P0)*h));
+    E=abs((sum(C)*h)-(sum(C0)*2*h));
     end
     
     E2=0;

@@ -1,5 +1,5 @@
 function [P,h]=convolv_3invG_adapt_window(t,m1,s1,m2,s2,m3,s3,bin)
-%onlt the first convolution is windowed
+%only the first convolution is windowed
 h0=.025;
 Maxt=max(t);
 

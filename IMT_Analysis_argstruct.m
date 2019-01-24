@@ -11,8 +11,8 @@ argstruct.data='dmso';
 %argstruct.data='at1';
 
 %argstruct.model='one';
-argstruct.model='two';
-%argstruct.model='three';
+%argstruct.model='two';
+argstruct.model='three';
 %argstruct.model='emg';
 %argstruct.model='one_lag';
 %argstruct.model='two_lag';
