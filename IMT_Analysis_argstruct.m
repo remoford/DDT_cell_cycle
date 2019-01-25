@@ -20,3 +20,6 @@ argstruct.model='three';
 
 argstruct.bin='yes';
 %argstruct.bin='no';
+
+%argstruct.order=3;
+argstruct.order=1;

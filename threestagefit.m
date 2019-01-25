@@ -1,4 +1,4 @@
-function [pd_max,max_ld]=threestagefit(data,TolFun,TolX,bin)
+function [pd_max,max_ld]=threestagefit(data,TolFun,TolX,bin,order)
 
 %num = length(data);
 C1 = mean(data);
@@ -8,16 +8,16 @@ C2 = var(data);
 %Fit three-stage model
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % BEGIN FUNCTION FIT_THREESTAGE
-    [P]=threestage_seeds(C1,C2,'coarse')
+    [P]=threestage_seeds(C1,C2,'coarse','coarse')
 
         % optimize parameters
         pd=zeros(length(P),6);
         ld = NaN*ones(length(P),1);
-        fminsearch_options = optimset('TolFun',TolFun, 'TolX', TolX,'MaxFunEvals',10000,'Display','final');
+        fminsearch_options = optimset('TolFun',TolFun, 'TolX', TolX,'MaxFunEvals',10000,'Display','iter');
         %options = statset('MaxIter',10000, 'MaxFunEvals',10000,'TolFun',1e-3,'TolX',1e-3,'TolTypeFun','rel', 'TolTypeX', 'abs');
         for i=1:length(P)
             x0=P(i,:);
-            f=@(x,m1,s1,m2,s2,m3,s3)convolv_3invG_Dirac_option(x,m1,s1,m2,s2,m3,s3,bin);
+            f=@(x,m1,s1,m2,s2,m3,s3)convolv_3invG_Dirac_option(x,m1,s1,m2,s2,m3,s3,bin,order);
             myll=@(params)loglikelihood(data, f, 6, params);
             objfun=@(params)penalize(myll, 6, params, [realmin  realmax;realmin  realmax;realmin  realmax;realmin  realmax;realmin  realmax;realmin  realmax]);
             [p,l]=fminsearch(objfun,x0,fminsearch_options)

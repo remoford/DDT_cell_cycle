@@ -1,6 +1,6 @@
 %this function evaluates the convolution of three inverse gaussian
 %distributions at vector t
-function [P,h,flag,E]=convolv_3invG_Dirac_option(t,m1,s1,m2,s2,m3,s3,bin)
+function [P,h,flag,E]=convolv_3invG_Dirac_option(t,m1,s1,m2,s2,m3,s3,bin,order)
 
 h0=.025;
 timing_output=0;
@@ -49,7 +49,12 @@ if sd(1)<0
 %otherwise, perform the convolution
 
 else
-    [P,h,~,E] = convolv_3invG(t,m(3),s(3),m(1),s(1),m(2),s(2),bin,h0,'relLL');
+    if order==3
+        [P,h,~,E] = convolv_3invG(t,m(3),s(3),m(1),s(1),m(2),s(2),bin,h0,'relLL');
+    end
+    if order==1
+        [P,h,~,E] = convolv_3invG(t,m(1),s(1),m(2),s(2),m(3),s(3),bin,h0,'relLL');
+    end
     
 
 end

@@ -73,7 +73,7 @@ if strcmp(argstruct.model,'one')
 [pd_max,max_ld]=onestagefit(data,TolFun,TolX);
 end
 if strcmp(argstruct.model,'three')
-[pd_max,max_ld]=threestagefit(data,TolFun,TolX,argstruct.bin);
+[pd_max,max_ld]=threestagefit(data,TolFun,TolX,argstruct.bin,argstruct.order);
 end
 if strcmp(argstruct.model,'emg')
 [pd_max,max_ld]=emgfit(data);
