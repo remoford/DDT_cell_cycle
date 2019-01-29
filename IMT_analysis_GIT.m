@@ -10,8 +10,8 @@ tic;
 %TolX = 10;
 
 % GO SLOW!
-TolFun = .1;
-TolX = 0.001;
+TolFun = .01;
+TolX = 0.01;
 
 %This section of code gets the IMT data
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

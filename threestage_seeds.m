@@ -28,22 +28,18 @@ function [P]=threestage_seeds(C1,C2,vry,twostagearg)
         c1_comp=C1*portion;
         c2_comp=C2*portion;
         
-        m1 = 1./c1;
-        s1 = (c2./c1.^3).^0.5;
-        
-        
-%We assume the 2 stage code tries the same number of values as this code
-%for each parameter.
+
         N1 = length(vry1);
         num2seeds=size(twoseeds,1);
         
         P=zeros((N1^2)*(num2seeds),6);
         
+        
         for i=1:N1
             for j=1:N1
                 [P2]=twostage_seeds(c1_comp(i),c2_comp(j),twostagearg);
                 for k=1:num2seeds
-                    P((N1*num2seeds)*(i-1)+(num2seeds)*(j-1)+k,:)=[m1(i),s1(j),P2(k,1),P2(k,2),P2(k,3),P2(k,4)];
+                    P((N1*num2seeds)*(i-1)+(num2seeds)*(j-1)+k,:)=[1/c1(i),(c2(j)/c1(i)^3).^0.5,P2(k,1),P2(k,2),P2(k,3),P2(k,4)];
                 end
             end
         end

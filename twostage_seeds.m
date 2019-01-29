@@ -24,21 +24,23 @@ function [P]=twostage_seeds(C1,C2,vry)
         
         c1 = C1*vry1;
         c2 = C2*vry1;
+        
         c1_comp=C1*vry2;
         c2_comp=C2*vry2;
-        m1 = 1./c1;
-        m2= 1./c1_comp;
-        s1 = (c2./c1.^3).^0.5;
-        s2 = (c2_comp./c1_comp.^3).^0.5;
+       
         N = length(vry1);
         
         P=zeros(N^2,4);
+        cumulant_seeds=zeros(N^2,4);
         
         for i=1:N
             for j=1:N
-            
-            P(N*(i-1)+j,:)=[m1(i),s1(j),m2(i),s2(j)];
+            cumulant_seeds(N*(i-1)+j,:)=[c1(i),c2(j),c1_comp(i),c2_comp(j)];
             end
+        end
+        
+        for i=1:N^2
+            P(i,:)=[1/cumulant_seeds(i,1),(cumulant_seeds(i,2)/cumulant_seeds(i,1)^3).^0.5,1/cumulant_seeds(i,3),(cumulant_seeds(i,4)/cumulant_seeds(i,3)^3).^0.5];
         end
             
 end
