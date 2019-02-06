@@ -16,7 +16,8 @@ function [P]=threestage_seeds(C1,C2,vry,twostagearg)
             vry1 = [.1 .2 .3 .4 .5];
         end
         if strcmp(vry,'coarse')
-            vry1 = [.1 .75];
+            vry1 = [.25 .75];
+            %vry1 = [.1 .75];
         end
             
         % proportions of moments represented by the remaining parts

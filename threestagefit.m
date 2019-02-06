@@ -18,11 +18,11 @@ C2 = var(data);
         for i=1:length(P)
             x0=P(i,:);
             f=@(x,m1,s1,m2,s2,m3,s3)convolv_3invG_Dirac_option(x,m1,s1,m2,s2,m3,s3,bin,order);
-            myll=@(params)loglikelihood(data, f, 6, params);
+            myll=@(params)(loglikelihood(data, f, 6, params))/1000;
             objfun=@(params)penalize(myll, 6, params, [realmin  realmax;realmin  realmax;realmin  realmax;realmin  realmax;realmin  realmax;realmin  realmax]);
             [p,l]=fminsearch(objfun,x0,fminsearch_options)
             pd(i,:)=p;
-            ld(i)=l;
+            ld(i)=l*1000;
         end
 
         % common to each fit, consider factoring out
