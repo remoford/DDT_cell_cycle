@@ -11,7 +11,7 @@ tic;
 
 % GO SLOW!
 TolFun = .01;
-TolX = 0.001;
+TolX = 0.005;
 
 %This section of code gets the IMT data
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
