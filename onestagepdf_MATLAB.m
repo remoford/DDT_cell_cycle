@@ -11,8 +11,9 @@ Y=pdf(d,t);
 %The pdf may return values that are zero to witin machine error
 %these values are also replaced by realmin
 %Y=max(Y, realmin);
-Y=reshape(Y,length(Y),1);
 
-Y(isnan(Y))=0;
+%Y=reshape(Y,length(Y),1);
+
+%Y(isnan(Y))=0;
 
 end
