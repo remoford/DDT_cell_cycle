@@ -1,4 +1,4 @@
-function [pd_max,max_ld]=twostagefit(data,TolFun,TolX,bin)
+function [pd_max,max_ld]=twostagefit(data,TolFun,TolX,bin,style)
 
 %num = length(data);
 C1 = mean(data);
@@ -66,10 +66,18 @@ C2 = var(data);
         for i=1:length(P)  
             x0 = P(i,:);
             %f=@(x,m1,s1,m2,s2)convolv_2invG_adapt_nov(x,m1,s1,m2,s2,.01);
+            if strcmp(style,'C')==1
+            f=@(x,m1,s1,m2,s2)mexWrap('twostage',x,m1,s2,m2,s2,'foo',0.1,'bar');
+            f_curry=@(params)f(data,params(1),params(2),params(3),params(4));
+            [p,l]=fminsearch(f_curry,x0,fminsearch_options)
+            end
+            if strcmp(style,'mat')==1
             f=@(x,m1,s1,m2,s2)convolv_2invG_Dirac_option(x,m1,s1,m2,s2,bin,.1,'relLL');
             myll=@(params)loglikelihood(data, f, 4, params);
             objfun=@(params)penalize(myll, 4, params, [realmin  realmax;realmin  realmax;realmin  realmax;realmin  realmax]);
             [p,l]=fminsearch(objfun,x0,fminsearch_options)
+            end
+            
             pd(i,:)=p;
             ld(i)=l;    
 

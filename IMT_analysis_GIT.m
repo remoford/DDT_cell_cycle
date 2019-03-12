@@ -64,7 +64,7 @@ end
 
 %choose model to fit
 if strcmp(argstruct.model,'two')
-[pd_max,max_ld]=twostagefit(data,TolFun,TolX,argstruct.bin);
+[pd_max,max_ld]=twostagefit(data,TolFun,TolX,argstruct.bin,argstruct.style);
 end
 if strcmp(argstruct.model,'one_lag')
 [pd_max,max_ld]=onestagelagfit(data);
