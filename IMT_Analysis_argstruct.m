@@ -25,4 +25,6 @@ argstruct.order=3;
 %argstruct.order=1;
 
 %argstruct.style='C';
-argstruct.style='mat';
+%argstruct.style='mat';
+argstruct.style='compare';
+

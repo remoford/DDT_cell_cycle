@@ -77,6 +77,12 @@ C2 = var(data);
             objfun=@(params)penalize(myll, 4, params, [realmin  realmax;realmin  realmax;realmin  realmax;realmin  realmax]);
             [p,l]=fminsearch(objfun,x0,fminsearch_options)
             end
+            if strcmp(style,'compare')==1
+            f=@(x,m1,s1,m2,s2)f_compare(x,m1,s1,m2,s2,bin,.1,'relLL');
+            myll=@(params)loglikelihood(data, f, 4, params);
+            objfun=@(params)penalize(myll, 4, params, [realmin  realmax;realmin  realmax;realmin  realmax;realmin  realmax]);
+            [p,l]=fminsearch(objfun,x0,fminsearch_options)
+            end
             
             pd(i,:)=p;
             ld(i)=l;    
